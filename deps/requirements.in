@@ -1,0 +1,9 @@
+# Direct runtime dependencies. Verified exact versions: requirements.lock.txt.
+PySide6-Essentials
+opencv-python-headless
+zxing-cpp
+httpx
+beautifulsoup4
+numpy
+# CPU inference for the local cover-orientation model.
+onnxruntime

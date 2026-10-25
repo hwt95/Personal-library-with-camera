@@ -1,0 +1,26 @@
+{
+  "repository": "https://huggingface.co/PaddlePaddle/PP-LCNet_x1_0_doc_ori_onnx",
+  "revision": "7330ab7039123e46af2dc03154b9969aa412c61d",
+  "purpose": "Local cover orientation classification, 0/90/180/270 degrees",
+  "inference_tested": false,
+  "files": [
+    {
+      "file": "inference.onnx",
+      "source": "https://huggingface.co/PaddlePaddle/PP-LCNet_x1_0_doc_ori_onnx/resolve/7330ab7039123e46af2dc03154b9969aa412c61d/inference.onnx",
+      "bytes": 6788069,
+      "sha256": "af9a0a4f317ff0709ce752067807f819cb15d883f8ecad89f28df1c6ee2d9c92"
+    },
+    {
+      "file": "inference.yml",
+      "source": "https://huggingface.co/PaddlePaddle/PP-LCNet_x1_0_doc_ori_onnx/resolve/7330ab7039123e46af2dc03154b9969aa412c61d/inference.yml",
+      "bytes": 766,
+      "sha256": "9e195eb729a8173588cd0e8a852c8b373aa606e79e77b4ac7d8346f5426caf26"
+    },
+    {
+      "file": "MODEL_CARD.md",
+      "source": "https://huggingface.co/PaddlePaddle/PP-LCNet_x1_0_doc_ori_onnx/resolve/7330ab7039123e46af2dc03154b9969aa412c61d/README.md",
+      "bytes": 1770,
+      "sha256": "e4965b4ed3a45f18f06c4556e1e22155cda9ff4e08a8184e1261db1d98269f0f"
+    }
+  ]
+}

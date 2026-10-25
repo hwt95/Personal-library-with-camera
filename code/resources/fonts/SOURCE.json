@@ -1,0 +1,42 @@
+[
+  {
+    "file": "LXGWWenKaiTC-Regular.ttf",
+    "url": "https://raw.githubusercontent.com/google/fonts/4e5f06dbb274a27ebe71ed54ea706b3ee40eabd9/ofl/lxgwwenkaitc/LXGWWenKaiTC-Regular.ttf",
+    "commit": "4e5f06dbb274a27ebe71ed54ea706b3ee40eabd9",
+    "bytes": 13110528,
+    "sha256": "4fcc5aec11cbbf737b0cfab7b63796f7f280087a7a656b2f13342cd5e5318d95",
+    "license": "OFL-1.1"
+  },
+  {
+    "file": "LXGWWenKaiTC-Bold.ttf",
+    "url": "https://raw.githubusercontent.com/google/fonts/4e5f06dbb274a27ebe71ed54ea706b3ee40eabd9/ofl/lxgwwenkaitc/LXGWWenKaiTC-Bold.ttf",
+    "commit": "4e5f06dbb274a27ebe71ed54ea706b3ee40eabd9",
+    "bytes": 12881104,
+    "sha256": "5c9feadfd928f3ae3860e7d001ad3d0d0c55b0157fff08cd4d51b51aca677f23",
+    "license": "OFL-1.1"
+  },
+  {
+    "file": "WenKai-OFL.txt",
+    "url": "https://raw.githubusercontent.com/google/fonts/4e5f06dbb274a27ebe71ed54ea706b3ee40eabd9/ofl/lxgwwenkaitc/OFL.txt",
+    "commit": "4e5f06dbb274a27ebe71ed54ea706b3ee40eabd9",
+    "bytes": 4390,
+    "sha256": "4fff27d35db0e22cd81d58da6f20e09f415cf354a3338e3cf1fc0eb9222c7174",
+    "license": "OFL-1.1"
+  },
+  {
+    "file": "NotoSansSC.ttf",
+    "url": "https://raw.githubusercontent.com/google/fonts/a85815a42757630ce188fdad368c2dfc444d4773/ofl/notosanssc/NotoSansSC[wght].ttf",
+    "commit": "a85815a42757630ce188fdad368c2dfc444d4773",
+    "bytes": 17772300,
+    "sha256": "a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da",
+    "license": "OFL-1.1"
+  },
+  {
+    "file": "NotoSansSC-OFL.txt",
+    "url": "https://raw.githubusercontent.com/google/fonts/a85815a42757630ce188fdad368c2dfc444d4773/ofl/notosanssc/OFL.txt",
+    "commit": "a85815a42757630ce188fdad368c2dfc444d4773",
+    "bytes": 4388,
+    "sha256": "1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9",
+    "license": "OFL-1.1"
+  }
+]

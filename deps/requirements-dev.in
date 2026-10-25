@@ -1,0 +1,4 @@
+# Development and build tools. Install requirements.lock.txt for a repeatable build.
+-r requirements.in
+pytest
+pyinstaller
