@@ -53,9 +53,7 @@ A book on the shelf, a magazine beside the sofa, a second copy tucked away in th
 
 ### Start with a clear desk
 
-The English entry screen below is empty: no book records, cover images or personal details have been added.
-
-![Empty English entry screen of Personal Library 1.1](docs/screenshots/home-en.png)
+![clear desk](docs/screenshots/home-en.png)
 
 ### From a barcode to your bookshelf
 
@@ -91,9 +89,7 @@ Third-party software, fonts, models and data keep their own terms. See [licence 
 
 ### 从一张干净的录入页开始
 
-下面是中文空白首屏，没有录入书目、封面或个人信息。
-
-![个人藏书管理 1.1 中文空白录入首屏](docs/screenshots/home-zh-CN.png)
+![录入页](docs/screenshots/home-zh-CN.png)
 
 ### 从扫到一本书，到找到那一本书
 
