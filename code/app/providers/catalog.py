@@ -77,6 +77,9 @@ def parse_nlc(html, requested, url=NLC_URL):
     classifications = fields.get("中图分类号", [])
     codes = list(dict.fromkeys(re.findall(r"[A-Z][A-Z0-9.\-/=():+]*", " ; ".join(classifications))))
     info = {"provider": "国家图书馆", "url": url, "responsibility": responsibility,
+            "source_fullname": "中国国家图书馆·中国国家数字图书馆网站",
+            "source_home": "https://www.nlc.cn/", "usage": "仅供测试，不能用于商业用途",
+            "terms_url": "https://www.nlc.cn/web/dsb_footer/bqsm/index.shtml",
             "raw_classification": " ; ".join(classifications), "clc_candidates": codes,
             "unassigned_contributors": unknown, "edition": " ; ".join(fields.get("版本项", []))}
     return Metadata(isbn=requested, title=title, authors="; ".join(authors),
@@ -219,27 +222,35 @@ async def google(client, isbn, key):
     return records
 
 
-async def lookup(isbn, source="auto", key="", detail_url="", status=None, transport=None):
+async def lookup(isbn, source="auto", key="", detail_url="", status=None, transport=None, language="zh_CN"):
+    from ..i18n import tr, translated
     isbn = normalize_isbn(isbn)
     sources = (["nlc", "openlibrary"] + (["google"] if key else [])) if source == "auto" else [source]
+    if language != "zh_CN":
+        sources = [name for name in sources if name != "nlc"]
+        if not sources:
+            sources = ["openlibrary"] + (["google"] if key else [])
+        detail_url = ""
+    if source == "auto_global":
+        sources = ["openlibrary"] + (["google"] if key else [])
     messages = []
     async with httpx.AsyncClient(headers={"User-Agent": AGENT}, follow_redirects=True, transport=transport) as client:
         for name in sources:
             if status:
-                status({"nlc": "国家图书馆（无应用层超时）", "openlibrary": "Open Library", "google": "Google Books", "manual": "仅手工"}[name])
+                status(translated({"nlc": "国家图书馆（无应用层超时）", "openlibrary": "Open Library", "google": "Google Books", "manual": "仅手工"}[name]))
             try:
                 if name == "manual":
-                    return [], "仅手工模式，请直接填写资料"
+                    return [], tr("仅手工模式，请直接填写资料")
                 records = await (nlc(client, isbn, detail_url) if name == "nlc" else
                                  openlibrary(client, isbn) if name == "openlibrary" else google(client, isbn, key))
                 if records:
                     return [asdict(r) for r in records], "；".join(messages)
-                messages.append(f"{name}：未找到匹配书目")
+                messages.append(tr("{name}：未找到匹配书目", name=name))
             except httpx.HTTPStatusError as exc:
-                messages.append(f"{name}：HTTP {exc.response.status_code}，请稍后重试或手工录入")
+                messages.append(tr("{name}：HTTP {code}，请稍后重试或手工录入", name=name, code=exc.response.status_code))
             except httpx.HTTPError as exc:
-                messages.append(f"{name}：网络连接失败（{type(exc).__name__}）")
+                messages.append(tr("{name}：网络连接失败（{kind}）", name=name, kind=type(exc).__name__))
             except (ValueError, KeyError, TypeError) as exc:
                 # Avoid including request URLs/API keys in errors or logs.
-                messages.append(f"{name}：{str(exc) if isinstance(exc, ValueError) and not key else '来源暂不可用'}")
+                messages.append(f"{name}: {translated(str(exc)) if isinstance(exc, ValueError) and not key else tr('来源暂不可用')}")
     return [], "；".join(messages)

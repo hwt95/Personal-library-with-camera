@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 import re
+from .i18n import tr
 
 
 def normalize_location_presets(values):
@@ -13,7 +14,7 @@ def normalize_location_presets(values):
         if len(name) > 120 or any(c in name for c in ("\n", "\r", "\x00")):
             raise ValueError("地点名称请使用不超过 120 字的单行文字")
         if name.casefold() in seen:
-            raise ValueError(f"地点已存在：{name}")
+            raise ValueError(tr("地点已存在：{name}", name=name))
         seen.add(name.casefold())
         locations.append(name)
     return locations
@@ -38,8 +39,50 @@ def normalize_isbn(value: str) -> str:
 
 
 def accession(clc_code: str, book_id: int, copy_no: int = 0) -> str:
-    base = f"{clc_code or 'PENDING'}-{book_id:06d}"
+    """The number is allocated within its classification, independent of row IDs."""
+    base = f"{clc_code or 'PENDING'}-{book_id:03d}"
     return base + (f"({copy_no})" if copy_no else "")
+
+
+READING_STATES = ("unread", "reading", "read")
+
+
+def normalize_issn(value):
+    text = re.sub(r"[\s-]", "", value).upper()
+    if not text:
+        return ""
+    if not re.fullmatch(r"\d{7}[\dX]", text):
+        raise ValueError("请输入有效的八位 ISSN")
+    if sum((8-i) * (10 if c == "X" else int(c)) for i, c in enumerate(text)) % 11:
+        raise ValueError("ISSN 校验位不正确")
+    return text[:4] + "-" + text[4:]
+
+
+def publication_barcode(value):
+    """Decode a publication identifier and the optional EAN add-on.
+
+    The 977 sequence variant is not an issue number. EAN-2 is retained as
+    the issue indicator; ambiguous EAN-5 is preserved for manual confirmation.
+    No barcode alone supplies a reliable full publication year.
+    """
+    text = str(value).strip()
+    parts = re.split(r"[ +]+", text)
+    main = re.sub(r"[-\s]", "", parts[0])
+    addon = parts[1] if len(parts) == 2 else ""
+    if len(parts) > 2 or (addon and not re.fullmatch(r"\d{2}|\d{5}", addon)):
+        raise ValueError("附加码应为两位或五位数字")
+    if len(main) in (15, 18) and main.startswith(("977", "978", "979")) and not addon:
+        main, addon = main[:13], main[13:]
+    if main.startswith("977") and len(main) == 13:
+        if not main.isdigit() or sum(int(c)*(1 if i%2 == 0 else 3) for i,c in enumerate(main)) % 10:
+            raise ValueError("期刊条码校验位不正确")
+        digits = main[3:10]
+        check = (-sum((8-i)*int(c) for i,c in enumerate(digits))) % 11
+        issn = normalize_issn(digits + ("X" if check == 10 else str(check)))
+        return {"media_type": "magazine", "issn": issn, "isbn": "", "barcode": main,
+                "barcode_addon": addon, "issue_number": addon if len(addon) == 2 else ""}
+    return {"media_type": "book", "isbn": normalize_isbn(main), "issn": "",
+            "barcode": main, "barcode_addon": addon, "issue_number": ""}
 
 
 def validate_year(value) -> int:
@@ -68,7 +111,8 @@ class Metadata:
 
 
 BOOK_FIELDS = ("isbn", "title", "authors", "translators", "publisher", "clc_code",
-               "summary", "reference_pubdate", "cover_blob", "cover_mime", "source_info")
+               "summary", "reference_pubdate", "cover_blob", "cover_mime", "source_info",
+               "media_type", "issn", "issue_year", "issue_number", "barcode", "barcode_addon")
 
 
 class ScanGate:

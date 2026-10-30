@@ -1,9 +1,13 @@
-* text=auto
-*.py text eol=lf
-*.md text eol=lf
-*.json text eol=lf
-*.yml text eol=lf
-*.txt text eol=lf
-*.html text eol=lf
+# Keep text identical across Windows, macOS and Linux checkouts.
+* text=auto eol=lf
 *.onnx binary
 *.ttf binary
+*.otf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.zip binary
+*.exe binary
+*.dll binary
+*.pyd binary

@@ -1,5 +1,6 @@
 """Build a portable Windows folder and ZIP; never reads personal databases/settings."""
 from pathlib import Path
+import argparse
 import hashlib
 import importlib.metadata as metadata
 import json
@@ -41,12 +42,13 @@ def deploy_program(staged, destination, backup):
     for path in (staged, destination, backup):
         path.resolve().relative_to(ROOT.resolve())
     names = {"PersonalLibrary.exe", "_internal", "licenses", "使用说明.md", "DEPENDENCIES.txt",
-             "THIRD_PARTY.json", "THIRD_PARTY_NOTICES.txt"}
+             "THIRD_PARTY.json", "THIRD_PARTY_NOTICES.txt", "LICENSE", "NOTICE", "LICENSING.md",
+             "COMMERCIAL_LICENSING.md", "DATA_SOURCES.md", "sources", "SOURCE_CODE.md", "SOURCE_DOWNLOADS.json", "COMPLIANCE_BUILD.json", "CHANGELOG.md"}
     items = list(staged.iterdir())
     if {p.name for p in items} - names:
         raise ValueError("暂存目录中有非程序文件，已取消发布")
     # A database inside a managed runtime directory is unusual but still user data.
-    for name in ("_internal", "licenses"):
+    for name in ("_internal", "licenses", "sources"):
         folder = destination / name
         if folder.exists() and any(p.suffix.lower() in (".sqlite3", ".sqlite", ".db") or p.name == "settings.json"
                                    for p in folder.rglob("*") if p.is_file()):
@@ -55,14 +57,15 @@ def deploy_program(staged, destination, backup):
     backup.mkdir(parents=True, exist_ok=False)
     moved, copied = [], []
     try:
-        for item in items:
-            target = destination / item.name
+        # Retire the old source-archive folder even though new builds omit it.
+        for name in sorted({item.name for item in items} | {"sources"}):
+            target = destination / name
             if target.exists():
                 target.resolve().relative_to(destination.resolve())
-                saved = backup / item.name
+                saved = backup / name
                 saved.resolve().relative_to(backup.resolve())
                 target.rename(saved)
-                moved.append(item.name)
+                moved.append(name)
         # Install the executable last, once its complete runtime is in place.
         for item in sorted(items, key=lambda p: p.name == "PersonalLibrary.exe"):
             target = destination / item.name
@@ -91,8 +94,26 @@ def user_file_hashes(folder):
 
 
 def main():
+    global DIST, WORK, STAGED_DIST, PACKAGE
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--candidate", action="store_true", help="Build a separate compliance candidate without deploying over an existing program")
+    parser.add_argument("--offline", action="store_true", help="Exclude all network catalog adapters; implies --candidate")
+    options = parser.parse_args()
+    if options.offline:
+        options.candidate = True
+    if options.candidate:
+        DIST = ROOT / ("build/compliance-offline-candidate" if options.offline else "build/compliance-candidate")
+        WORK = ROOT / ("build/compliance-offline-work" if options.offline else "build/compliance-work")
+        STAGED_DIST = WORK / "staged-dist"
+        PACKAGE = STAGED_DIST / "PersonalLibrary"
     if sys.platform != "win32":
         raise SystemExit("Windows 便携包请在 Windows x64 上构建")
+    from scripts.package_compliance import verified_sources, install_compliance
+    sources = verified_sources()
+    model_folder = ROOT / "deps" / "models" / "book_boundary"
+    for asset in json.loads((model_folder / "SOURCE.json").read_text(encoding="utf-8"))["assets"]:
+        if hashlib.sha256((model_folder / asset["file"]).read_bytes()).hexdigest() != asset["sha256"]:
+            raise RuntimeError(f"Boundary model asset checksum mismatch: {asset['file']}")
     subprocess.run([sys.executable, str(Path(__file__).with_name("prepare_assets.py"))], check=True)
     WORK.mkdir(parents=True, exist_ok=True)
     DIST.mkdir(parents=True, exist_ok=True)
@@ -101,6 +122,19 @@ def main():
     if PACKAGE.exists() and (list(PACKAGE.rglob("*.sqlite3")) or (PACKAGE / "settings.json").exists()):
         raise SystemExit("临时构建目录存在个人数据，已取消构建")
     version_file = write_version_info(WORK / "version-info.txt")
+    icon_path = RESOURCES / "app-icon.ico"
+    from PySide6.QtGui import QGuiApplication, QImage, QPainter
+    from PySide6.QtSvg import QSvgRenderer
+    icon_app = QGuiApplication.instance() or QGuiApplication([])
+    icon_image = QImage(256, 256, QImage.Format.Format_ARGB32)
+    icon_image.fill(0)
+    icon_painter = QPainter(icon_image)
+    QSvgRenderer(str(RESOURCES / "app-icon.svg")).render(icon_painter)
+    icon_painter.end()
+    if not icon_image.save(str(icon_path), "ICO"):
+        raise RuntimeError("Cannot write application icon")
+    edition_file = WORK / "distribution.json"
+    edition_file.write_text(json.dumps({"data_mode": "offline" if options.offline else "online"}), encoding="utf-8")
     from PySide6 import __file__ as qt_file
     qt_root = Path(qt_file).parent
     # Collect the C/C++ runtime shipped in Qt's Windows wheel, not the system's DLLs.
@@ -109,12 +143,18 @@ def main():
             "--name", "PersonalLibrary", "--distpath", str(STAGED_DIST), "--workpath", str(WORK / "pyinstaller"),
             "--specpath", str(WORK), "--paths", str(ROOT / "code"),
             "--version-file", str(version_file),
+            "--icon", str(icon_path),
             "--add-data", f"{RESOURCES};resources",
+            "--add-data", f"{edition_file};.",
             "--add-data", f"{ROOT / 'deps' / 'models' / 'document_orientation'};models/document_orientation",
+            "--add-data", f"{ROOT / 'deps' / 'models' / 'book_boundary'};models/book_boundary",
             "--collect-binaries", "onnxruntime", "--collect-data", "certifi",
             "--hidden-import", "numpy", "--hidden-import", "zxingcpp",
-            "--exclude-module", "pytest", "--exclude-module", "tkinter", "--exclude-module", "PySide6.QtQml",
+            "--exclude-module", "pytest", "--exclude-module", "_pytest", "--exclude-module", "tkinter", "--exclude-module", "PySide6.QtQml",
+            "--exclude-module", "PySide6.QtNetwork",
             "--exclude-module", "PySide6.QtQuick", "--exclude-module", "PySide6.QtOpenGLWidgets"]
+    if options.offline:
+        args += ["--exclude-module", "app.providers.catalog"]
     for dll in runtime:
         if (Path(sys.base_prefix) / dll.name).is_file():
             dll = Path(sys.base_prefix) / dll.name
@@ -132,6 +172,8 @@ def main():
     with log.open("w", encoding="utf-8") as output:
         subprocess.run(args, cwd=ROOT, env=build_environment, stdout=output, stderr=subprocess.STDOUT, check=True)
     shutil.copy2(ROOT / "code" / "USER_GUIDE.md", PACKAGE / "使用说明.md")
+    for name in ("LICENSE", "NOTICE", "LICENSING.md", "COMMERCIAL_LICENSING.md", "DATA_SOURCES.md", "CHANGELOG.md"):
+        shutil.copy2(ROOT / name, PACKAGE / name)
     shutil.copy2(ROOT / "deps" / "requirements.lock.txt", PACKAGE / "DEPENDENCIES.txt")
     licenses = PACKAGE / "licenses"
     licenses.mkdir(exist_ok=True)
@@ -157,30 +199,48 @@ def main():
             shutil.copy2(python_license, licenses / "Python-LICENSE.txt")
             break
     shutil.copytree(ROOT / "deps" / "models" / "document_orientation", licenses / "document_orientation", dirs_exist_ok=True, ignore=shutil.ignore_patterns("*.onnx"))
+    shutil.copytree(ROOT / "deps" / "models" / "book_boundary", licenses / "book_boundary", dirs_exist_ok=True, ignore=shutil.ignore_patterns("*.onnx"))
+    shutil.copy2(RESOURCES / "ICON_NOTICE.txt", licenses / "ICON_NOTICE.txt")
     shutil.copytree(RESOURCES / "fonts", licenses / "font", dirs_exist_ok=True, ignore=shutil.ignore_patterns("*.otf", "*.ttf"))
     font_sources = json.loads((RESOURCES / "fonts" / "SOURCE.json").read_text(encoding="utf-8"))
-    for name, license_file in (("LXGW WenKai TC", "WenKai-OFL.txt"), ("Noto Sans SC", "NotoSansSC-OFL.txt")):
+    for name, license_file in (("LXGW WenKai", "WenKai-OFL.txt"), ("Tinos", "Tinos-LICENSE.txt"), ("Noto Sans Arabic", "NotoSansArabic-OFL.txt")):
         source = next(item for item in font_sources if item["file"] == license_file)
-        inventory.append({"name": name, "version": source["commit"], "license": "OFL-1.1",
+        inventory.append({"name": name, "version": source.get("version", source["commit"]), "license": "OFL-1.1",
                           "files": ["licenses/font/" + license_file], "source": source["url"]})
+    inventory.append({"name": "DocAligner T8 / LCNet", "version": "1.1.1", "license": "Apache-2.0",
+                      "files": ["licenses/book_boundary/docaligner-LICENSE", "licenses/book_boundary/SOURCE.json"]})
     (PACKAGE / "THIRD_PARTY.json").write_text(json.dumps(inventory, ensure_ascii=False, indent=2), encoding="utf-8")
     (PACKAGE / "THIRD_PARTY_NOTICES.txt").write_text(
         "Personal Library third-party notices\n\n"
         "Qt / PySide6 / Shiboken are dynamically linked under their applicable LGPLv3/GPL/commercial terms. "
         "This distribution uses the open-source LGPL components. License texts accompany this package. "
         "Users may replace compatible Qt/PySide libraries and debug modifications as permitted by the LGPL. "
-        "Upstream source: https://code.qt.io/cgit/pyside/pyside-setup.git/ and https://code.qt.io/cgit/qt/ .\n\n"
+        "Exact-version source downloads are listed in SOURCE_DOWNLOADS.json and the in-app license viewer; "
+        "see SOURCE_CODE.md for download links, checksums and replacement instructions.\n\n"
         "OpenCV, NumPy, ZXing, ONNX Runtime and other dependencies retain their original licenses; see licenses/ and THIRD_PARTY.json.\n"
-        "LXGW WenKai TC and Noto Sans SC are from Google Fonts under SIL Open Font License 1.1. "
+        "LXGW WenKai 1.530 Regular is from lxgw/LxgwWenKai; Tinos Regular is from googlefonts/tinos; "
+        "Noto Sans Arabic is from Google Fonts and used at regular weight. All retain SIL Open Font License 1.1. "
         "The original, unmodified fonts may be used commercially and bundled with software; "
-        "see licenses/font/WenKai-OFL.txt, NotoSansSC-OFL.txt and SOURCE.json for the full terms and pinned sources.\n"
+        "see licenses/font/WenKai-OFL.txt, Tinos-LICENSE.txt, NotoSansArabic-OFL.txt and SOURCE.json for terms and pinned sources.\n"
         "PP-LCNet_x1_0_doc_ori: PaddlePaddle model, Apache-2.0; exact revision and checksums in licenses/document_orientation/SOURCE.json.\n"
+        "DocAligner 1.1.1 T8 / LCNet: Apache-2.0; model sources and checksums in licenses/book_boundary/SOURCE.json.\n"
         "NLC parsing is independently implemented against catalog HTML; no calibre plugin code is included.\n", encoding="utf-8")
+    compliance = install_compliance(PACKAGE, sources)
+    (WORK / "compliance-build.json").write_text(json.dumps(compliance, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    # Keep the source directions beside the downloadable binary as well as in its UI.
+    shutil.copy2(PACKAGE / "SOURCE_CODE.md", DIST / "SOURCE_DOWNLOADS.md")
     # Packaging uses only the staging tree; an existing library or API key cannot leak into the ZIP.
     archive = shutil.make_archive(str(DIST / "PersonalLibrary-Windows-x64"), "zip", STAGED_DIST, PACKAGE.name)
     archive_path = Path(archive)
     digest = hashlib.sha256(archive_path.read_bytes()).hexdigest()
     archive_path.with_suffix(".zip.sha256").write_text(f"{digest}  {archive_path.name}\n", encoding="ascii")
+    if options.candidate:
+        result = {"zip": archive, "sha256": digest, "zip_bytes": archive_path.stat().st_size,
+                  "candidate_only": True, "data_mode": "offline" if options.offline else "online", "deployed": False, "published": False,
+                  "app_version": __version__, "release_authorization": "pending"}
+        (DIST / "candidate.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print(json.dumps(result, indent=2))
+        return
     before = user_file_hashes(DEPLOYED_PACKAGE) if DEPLOYED_PACKAGE.exists() else {}
     backup = WORK / "previous-program" / datetime.now().strftime("%Y%m%d-%H%M%S-%f")
     deploy_program(PACKAGE, DEPLOYED_PACKAGE, backup)

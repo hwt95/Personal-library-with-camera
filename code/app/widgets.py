@@ -1,3 +1,4 @@
+from .i18n import tr
 import numpy as np
 import cv2
 from PySide6.QtCore import Qt, QPointF, QRectF, Signal
@@ -37,16 +38,16 @@ class CameraControls(QWidget):
         self.owner = owner
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        self.autofocus = QCheckBox("自动对焦")
-        self.refocus = button("重新对焦", owner.refocus_camera)
+        self.autofocus = QCheckBox(tr('自动对焦'))
+        self.refocus = button(tr('重新对焦'), owner.refocus_camera)
         layout.addWidget(row(self.autofocus, self.refocus))
         self.zoom = QSlider(Qt.Orientation.Horizontal)
         self.zoom.setRange(100, 400)
         self.zoom.setSingleStep(10)
         self.zoom.setPageStep(25)
-        self.zoom.setToolTip("1–4 倍数字缩放；取景、扫码与拍摄使用相同范围")
+        self.zoom.setToolTip(tr('1–4 倍数字缩放；取景、扫码与拍摄使用相同范围'))
         self.zoom_label = QLabel()
-        layout.addWidget(row(self.zoom_label, self.zoom, button("复位", lambda: owner.set_camera_zoom(1.0))))
+        layout.addWidget(row(self.zoom_label, self.zoom, button(tr('复位'), lambda: owner.set_camera_zoom(1.0))))
         self.focus_note = QLabel()
         self.focus_note.setWordWrap(True)
         self.focus_note.setObjectName("subtle")
@@ -60,25 +61,29 @@ class CameraControls(QWidget):
         self.zoom.blockSignals(True)
         self.zoom.setValue(round(self.owner.camera_zoom * 100))
         self.zoom.blockSignals(False)
-        self.zoom_label.setText(f"缩放 {self.owner.camera_zoom:.1f}×")
+        self.zoom_label.setText(tr('缩放 {v0:.1f}×', v0=(self.owner.camera_zoom)))
         self.autofocus.blockSignals(True)
         self.autofocus.setChecked(self.owner.camera_autofocus)
         self.autofocus.blockSignals(False)
         supported = self.owner.camera_focus_state.get("supported")
         self.autofocus.setEnabled(supported is not False)
         self.refocus.setEnabled(self.owner.camera is not None and supported is not False)
-        self.focus_note.setText(self.owner.camera_focus_state.get("note", "开启摄像头后自动对焦；缩放为数字裁切"))
+        self.focus_note.setText(self.owner.camera_focus_state.get("note", tr('开启摄像头后自动对焦；缩放为数字裁切')))
 
 
 class ImageView(QWidget):
     corners_changed = Signal(object)
+    corners_moving = Signal(object)
+    clicked = Signal()
 
-    def __init__(self, placeholder="暂无封面", *, editable=False, guide=False):
+    def __init__(self, placeholder=tr('暂无封面'), *, editable=False, guide=False):
         super().__init__()
         self.image = QImage()
         self.placeholder, self.editable, self.guide = placeholder, editable, guide
         self.points = None
         self.drag_index = None
+        self.selected_index = 0
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setMinimumSize(160, 200)
 
     def set_frame(self, frame):
@@ -112,12 +117,22 @@ class ImageView(QWidget):
             return
         painter.drawImage(self.rect_image(), self.image)
         if self.points is not None:
-            painter.setPen(QPen(QColor("#18b8a6"), 3))
-            painter.drawPolygon(QPolygonF([self.map_point(p) for p in self.points]))
+            polygon = QPolygonF([self.map_point(p) for p in self.points])
+            # Thin contrasting strokes remain visible on both dark/light covers.
+            painter.setPen(QPen(QColor("#111827"), 3))
+            painter.drawPolygon(polygon)
+            painter.setPen(QPen(QColor("#ffffff"), 1))
+            painter.drawPolygon(polygon)
+            painter.setPen(QPen(QColor("#e6007e"), 1, Qt.PenStyle.DashLine))
+            painter.drawPolygon(polygon)
             painter.setBrush(QColor("#ffffff"))
+            painter.setPen(QPen(QColor("#111827"), 1))
             for i, point in enumerate(self.points):
                 mapped = self.map_point(point)
-                painter.drawEllipse(mapped, 7, 7)
+                painter.drawEllipse(mapped, 5, 5)
+                painter.setPen(QPen(QColor("#111827"), 1))
+                painter.drawText(mapped + QPointF(11, -7), str(i+1))
+                painter.setPen(QPen(QColor("#ffffff"), 1))
                 painter.drawText(mapped + QPointF(10, -8), str(i+1))
         elif self.guide:
             rect = self.rect_image()
@@ -126,11 +141,15 @@ class ImageView(QWidget):
 
     def mousePressEvent(self, event):
         if not self.editable or self.points is None:
+            if event.button() == Qt.MouseButton.LeftButton and not self.image.isNull():
+                self.clicked.emit()
             return
         distances = [(self.map_point(p) - event.position()).manhattanLength() for p in self.points]
         selected = int(np.argmin(distances))
         if distances[selected] < 35:
-            self.drag_index = selected
+            self.drag_index = self.selected_index = selected
+            self.setFocus()
+            self.corners_moving.emit((selected, self.points.copy()))
 
     def mouseMoveEvent(self, event):
         if self.drag_index is None:
@@ -143,17 +162,38 @@ class ImageView(QWidget):
         if valid_corners(candidate):
             self.points = candidate
             self.update()
+            self.corners_moving.emit((self.drag_index, self.points.copy()))
 
     def mouseReleaseEvent(self, event):
         if self.drag_index is not None:
             self.drag_index = None
             self.corners_changed.emit(self.points.copy())
 
+    def keyPressEvent(self, event):
+        movements = {Qt.Key.Key_Left: (-1,0), Qt.Key.Key_Right: (1,0), Qt.Key.Key_Up: (0,-1), Qt.Key.Key_Down: (0,1)}
+        if self.editable and self.points is not None and event.key() in movements:
+            step = 10 if event.modifiers() & Qt.KeyboardModifier.ShiftModifier else 1
+            candidate = self.points.copy()
+            candidate[self.selected_index] = np.clip(candidate[self.selected_index] + np.array(movements[event.key()])*step,
+                                                       [0,0], [self.image.width()-1,self.image.height()-1])
+            if valid_corners(candidate):
+                self.points = candidate
+                self.corners_moving.emit((self.selected_index, candidate.copy()))
+                self.corners_changed.emit(candidate.copy())
+                self.update()
+            event.accept()
+        else:
+            super().keyPressEvent(event)
+
 
 STYLE = """
-QWidget { font-family: 'LXGW WenKai TC', 'Noto Sans SC'; font-size: 11pt; color: #243449; }
+QWidget { font-family: 'Tinos', 'LXGW WenKai', 'Noto Sans Arabic'; font-size: 11pt; font-weight: 400; color: #243449; }
 QMainWindow, QDialog { background: #f6f8fb; }
-QLabel#heading { font-size: 22pt; font-weight: 700; color: #17314d; }
+QWidget#appTitleBar { background: #087e73; border-radius: 8px; }
+QLabel#windowCaption { color: white; }
+QPushButton#windowControl { background: transparent; color: white; border: none; font-size: 16pt; padding: 0; }
+QPushButton#windowControl:hover { background: #126c65; }
+QLabel#heading { font-size: 22pt; font-weight: 400; color: #17314d; }
 QLabel#subtle { color: #68788b; }
 QLabel#status { padding: 9px; background: #eaf4f3; color: #165c54; border-radius: 5px; }
 QTabWidget::pane { border: 1px solid #dbe3ec; background: white; }
@@ -166,7 +206,7 @@ QPushButton:hover { background: #e8f2f2; border-color: #80bdb7; }
 QPushButton#primary { background: #087e73; color: white; border: 1px solid #087e73; }
 QPushButton:disabled { color: #9aa7b5; background: #edf1f6; }
 QTableWidget { background: white; alternate-background-color: #f5f8fc; gridline-color: #e4eaf1; border: 1px solid #dbe3ec; }
-QHeaderView::section { background: #edf2f7; border: 0; padding: 9px; font-weight: 700; }
+QHeaderView::section { background: #edf2f7; border: 0; padding: 9px; font-weight: 400; }
 QTableWidget::item:selected { background: #d4ebe7; color: #17314d; }
 QGroupBox { border: 1px solid #dbe3ec; border-radius: 5px; margin-top: 12px; padding-top: 12px; }
 QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 5px; }

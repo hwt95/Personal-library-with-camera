@@ -1,3 +1,4 @@
+from .i18n import tr
 from pathlib import Path
 import sys
 import threading
@@ -15,7 +16,7 @@ def model_path():
 def decode_image(blob):
     frame = cv2.imdecode(np.frombuffer(blob, np.uint8), cv2.IMREAD_COLOR)
     if frame is None or not frame.size:
-        raise ValueError("无法读取图片，请选择 JPEG 或 PNG 图片")
+        raise ValueError(tr('无法读取图片，请选择 JPEG 或 PNG 图片'))
     return frame
 
 
@@ -25,7 +26,7 @@ def encode_cover(frame):
         frame = cv2.resize(frame, None, fx=ratio, fy=ratio, interpolation=cv2.INTER_AREA)
     ok, encoded = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 90])
     if not ok:
-        raise ValueError("封面图片编码失败")
+        raise ValueError(tr('封面图片编码失败'))
     return encoded.tobytes()
 
 
@@ -123,10 +124,10 @@ def detect_corners(frame):
 def perspective_crop(frame, points):
     points = np.asarray(points, np.float32).reshape(4, 2)
     if not valid_corners(points):
-        raise ValueError("四角不能交叉或重合，请重新调整")
-    tl, tr, br, bl = points
-    width = int(max(np.linalg.norm(tr-tl), np.linalg.norm(br-bl)))
-    height = int(max(np.linalg.norm(bl-tl), np.linalg.norm(br-tr)))
+        raise ValueError(tr('四角不能交叉或重合，请重新调整'))
+    tl, top_right, br, bl = points
+    width = int(max(np.linalg.norm(top_right-tl), np.linalg.norm(br-bl)))
+    height = int(max(np.linalg.norm(bl-tl), np.linalg.norm(br-top_right)))
     width, height = max(10, width), max(10, height)
     target = np.array([[0, 0], [width-1, 0], [width-1, height-1], [0, height-1]], np.float32)
     return cv2.warpPerspective(frame, cv2.getPerspectiveTransform(points, target), (width, height))
@@ -162,24 +163,36 @@ class Orientation:
         return best * 90, float(probabilities[best])
 
 
+def detect_cover_corners(frame, *, fast=False):
+    try:
+        from .boundary import detect
+        points = detect(frame, fast=fast)
+        if points is not None:
+            return points, True
+    except Exception:
+        # The classical detector remains available if a model is damaged.
+        pass
+    return detect_corners(frame)
+
+
 def process_cover(frame, points=None, auto_orientation=True, rotation=0):
     detected = True
     if points is None:
-        points, detected = detect_corners(frame)
+        points, detected = detect_cover_corners(frame)
     cropped = perspective_crop(frame, points)
     angle, confidence = 0, 0.0
-    note = "已识别封面边框；可拖动四角调整" if detected else "边框不确定，已保留完整照片，可重新识别或拖动四角"
+    note = tr('已识别封面边框；可拖动四角调整') if detected else tr('边框不确定，已保留完整照片，可重新识别或拖动四角')
     if auto_orientation:
         try:
             angle, confidence = Orientation.predict(cropped)
             if confidence >= .85:
                 # Paddle labels describe clockwise input rotation; undo it CCW.
                 rotation = angle // 90
-                note += f"；方向 {angle}°，置信度 {confidence:.0%}"
+                note += tr('；方向 {v0}°，置信度 {v1:.0%}', v0=(angle), v1=(confidence))
             else:
-                note += "；朝向不确定，请手动旋转"
+                note += tr('；朝向不确定，请手动旋转')
         except Exception:
-            note += "；本地方向校正不可用，可手动旋转"
+            note += tr('；本地方向校正不可用，可手动旋转')
     result = np.ascontiguousarray(np.rot90(cropped, rotation % 4))
     return {"points": points, "image": result, "rotation": rotation % 4, "note": note, "detected": detected,
             "orientation_angle": angle, "confidence": confidence}

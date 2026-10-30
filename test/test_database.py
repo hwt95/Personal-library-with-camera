@@ -18,7 +18,7 @@ def book(title="测试图书", **extra):
 
 def test_copies_do_not_reuse_or_renumber(db):
     first, code = db.save(book(), 2000)
-    assert code == "I247.57-000001"
+    assert code == "I247.57-001"
     ids = [db.save(book(), 2001+i, book_id=1)[0] for i in range(12)]
     assert db.search()[-1]["code"].endswith("(12)")
     assert db.search()[2]["code"].endswith("(2)")
@@ -30,15 +30,15 @@ def test_copies_do_not_reuse_or_renumber(db):
     _, code = db.save(book(), 2026, book_id=1)
     assert code.endswith("(14)")
     _, code = db.save(book("另一本"), 2020)
-    assert code == "I247.57-000002"
+    assert code == "I247.57-002"
 
 
 def test_reclassify_updates_all_codes_preserves_ids(db):
     first, _ = db.save(book(clc_code=""), 2000)
     second, _ = db.save(book(clc_code=""), 2001, book_id=1)
-    assert db.search()[0]["code"] == "PENDING-000001"
+    assert db.search()[0]["code"] == "PENDING-001"
     db.save(book(clc_code="TP303"), 2000, book_id=1, copy_id=first)
-    assert [(r["id"], r["code"]) for r in db.search()] == [(first, "TP303-000001"), (second, "TP303-000001(1)")]
+    assert [(r["id"], r["code"]) for r in db.search()] == [(first, "TP303-001"), (second, "TP303-001(1)")]
 
 
 def test_save_rolls_back_both_book_and_copy(db):
@@ -63,7 +63,7 @@ def test_search_and_or_literal_wildcards_and_sort(db):
     assert len(db.search(quick="100%_")) == 2
     assert len(db.search(quick="' OR 1=1 --")) == 0
     assert len(db.search(fields={"isbn": "978-7-111-54493-7"}, exact_isbn=True)) == 2
-    assert len(db.search(fields={"code": "I247.57-000001(1)"}, exact_code=True)) == 1
+    assert len(db.search(fields={"code": "I247.57-001(1)"}, exact_code=True)) == 1
     assert len(db.search(year_min=2021, year_max=2026)) == 1
     assert [r["publication_year"] for r in db.search(sort="edition_year")] == [2025, 2000, 2020]
     assert [r["copy_no"] for r in db.search(sort="code", descending=True)] == [0, 1, 0]
@@ -87,7 +87,7 @@ def test_backup_reset_restore_cover_and_classification(db, tmp_path):
     assert restored.stats() == (1, 2)
     assert restored.save(restored.book(1), 2026, book_id=1)[1].endswith("(2)")
     restored.close()
-    assert db.save(book(), 2020)[1].endswith("000001")
+    assert db.save(book(), 2020)[1].endswith("001")
 
 
 def test_failed_backup_aborts_reset(db, monkeypatch):

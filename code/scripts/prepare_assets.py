@@ -1,4 +1,4 @@
-"""Fetch pinned Google Fonts and verify their upstream hashes before packaging."""
+"""Fetch only the pinned selected fonts and verify hashes before packaging."""
 from pathlib import Path
 import hashlib
 import json

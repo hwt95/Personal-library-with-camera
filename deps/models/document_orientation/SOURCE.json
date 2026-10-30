@@ -2,7 +2,6 @@
   "repository": "https://huggingface.co/PaddlePaddle/PP-LCNet_x1_0_doc_ori_onnx",
   "revision": "7330ab7039123e46af2dc03154b9969aa412c61d",
   "purpose": "Local cover orientation classification, 0/90/180/270 degrees",
-  "inference_tested": false,
   "files": [
     {
       "file": "inference.onnx",

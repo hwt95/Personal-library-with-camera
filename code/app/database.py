@@ -5,10 +5,10 @@ from pathlib import Path
 import sqlite3
 from datetime import datetime
 
-from .domain import BOOK_FIELDS, accession, normalize_isbn, validate_year
+from .domain import BOOK_FIELDS, READING_STATES, accession, normalize_isbn, normalize_issn, validate_year
 
 APP_ID = 0x504C4942
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 MAJOR_CLASSES = {
     "A": "马克思主义、列宁主义、毛泽东思想、邓小平理论", "B": "哲学、宗教",
     "C": "社会科学总论", "D": "政治、法律", "E": "军事", "F": "经济",
@@ -17,12 +17,13 @@ MAJOR_CLASSES = {
     "Q": "生物科学", "R": "医药、卫生", "S": "农业科学", "T": "工业技术",
     "U": "交通运输", "V": "航空、航天", "X": "环境科学、安全科学", "Z": "综合性图书",
 }
-CODE_SQL = "(COALESCE(NULLIF(b.clc_code,''),'PENDING') || '-' || printf('%06d',b.id) || CASE WHEN c.copy_no=0 THEN '' ELSE '(' || c.copy_no || ')' END)"
-BASE_SQL = "COALESCE(NULLIF(b.clc_code,''),'PENDING') COLLATE NOCASE, b.id"
+CODE_SQL = "(b.number_scope || '-' || printf('%03d',b.class_no) || CASE WHEN c.copy_no=0 THEN '' ELSE '(' || c.copy_no || ')' END)"
+BASE_SQL = "b.number_scope COLLATE NOCASE, b.class_no"
 SEARCH_FIELDS = {
     "title": "b.title", "authors": "b.authors", "translators": "b.translators",
     "publisher": "b.publisher", "isbn": "b.isbn", "code": CODE_SQL,
     "clc_code": "b.clc_code", "location": "c.location", "notes": "c.notes", "summary": "b.summary",
+    "issn": "b.issn", "issue_number": "b.issue_number",
 }
 SORTS = {
     "default": f"{BASE_SQL}, c.copy_no, c.publication_year DESC",
@@ -32,6 +33,8 @@ SORTS = {
     "publication_year": "c.publication_year", "clc_code": "b.clc_code",
     "location": "c.location", "created_at": "c.created_at", "copy_count": "copy_count",
     "summary": "b.summary COLLATE NOCASE",
+    "media_type": "b.media_type", "issue_number": "CAST(b.issue_number AS INTEGER), b.issue_number",
+    "reading_status": "c.reading_status",
 }
 
 
@@ -42,6 +45,7 @@ def like(value):
 class LibraryDB:
     def __init__(self, path, *, create=False):
         self.path = Path(path).resolve()
+        self.migration_backup = None
         created = False
         if create:
             self.path.parent.mkdir(parents=True, exist_ok=True)
@@ -59,13 +63,16 @@ class LibraryDB:
             else:
                 if self.conn.execute("PRAGMA application_id").fetchone()[0] != APP_ID:
                     raise ValueError("该文件不是个人藏书管理程序的数据库")
-                if self.conn.execute("PRAGMA user_version").fetchone()[0] != SCHEMA_VERSION:
+                version = self.conn.execute("PRAGMA user_version").fetchone()[0]
+                if version not in (1, SCHEMA_VERSION):
                     raise ValueError("数据库版本不受此程序支持，请使用对应版本")
                 if self.conn.execute("PRAGMA quick_check").fetchone()[0] != "ok":
                     raise ValueError("数据库完整性检查失败，请恢复备份")
                 self.conn.execute("SELECT isbn,next_copy_no FROM books LIMIT 0")
                 self.conn.execute("SELECT publication_year FROM copies LIMIT 0")
                 self.conn.execute("SELECT code FROM classifications LIMIT 0")
+                if version == 1:
+                    self._upgrade_schema(backup=True)
             self.conn.execute("PRAGMA journal_mode=DELETE")
             # Actually acquire a write transaction before switching from the old library.
             self.conn.execute("BEGIN IMMEDIATE")
@@ -81,7 +88,7 @@ class LibraryDB:
         self.conn.executescript(f"""
             BEGIN;
             PRAGMA application_id={APP_ID};
-            PRAGMA user_version={SCHEMA_VERSION};
+            PRAGMA user_version=1;
             CREATE TABLE books (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 isbn TEXT NOT NULL DEFAULT '', title TEXT NOT NULL CHECK(length(trim(title))>0),
@@ -114,6 +121,54 @@ class LibraryDB:
         with self.conn:
             self.conn.executemany("INSERT INTO classifications(code,name,source,edition) VALUES(?,?,?,?)",
                                   [(c, n, "中图法基本大类简表", "简表") for c, n in MAJOR_CLASSES.items()])
+        self._upgrade_schema(backup=False)
+
+    def _upgrade_schema(self, *, backup):
+        if backup:
+            stamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
+            self.migration_backup = self.backup(self.path.parent / "backups" / f"{self.path.stem}-pre-1.1-{stamp}.sqlite3")
+        with self.conn:
+            self.conn.execute("BEGIN IMMEDIATE")
+            for definition in ("media_type TEXT NOT NULL DEFAULT 'book'", "issn TEXT NOT NULL DEFAULT ''",
+                               "issue_year INTEGER NOT NULL DEFAULT 0", "issue_number TEXT NOT NULL DEFAULT ''",
+                               "barcode TEXT NOT NULL DEFAULT ''", "barcode_addon TEXT NOT NULL DEFAULT ''",
+                               "number_scope TEXT NOT NULL DEFAULT ''", "class_no INTEGER NOT NULL DEFAULT 0"):
+                self.conn.execute("ALTER TABLE books ADD COLUMN " + definition)
+            self.conn.execute("ALTER TABLE copies ADD COLUMN reading_status TEXT NOT NULL DEFAULT 'unread'")
+            self.conn.execute("CREATE TABLE class_counters(scope TEXT PRIMARY KEY,next_number INTEGER NOT NULL CHECK(next_number>0))")
+            self.conn.execute("CREATE TABLE legacy_codes(copy_id INTEGER PRIMARY KEY,old_code TEXT NOT NULL,new_code TEXT NOT NULL)")
+            for book in self.conn.execute("SELECT id,clc_code FROM books ORDER BY id").fetchall():
+                scope = book["clc_code"] or "PENDING"
+                number = self._allocate_number(scope)
+                self.conn.execute("UPDATE books SET number_scope=?,class_no=? WHERE id=?", (scope, number, book["id"]))
+                for copy in self.conn.execute("SELECT id,copy_no FROM copies WHERE book_id=?", (book["id"],)).fetchall():
+                    old = f"{scope}-{book['id']:06d}" + (f"({copy['copy_no']})" if copy["copy_no"] else "")
+                    self.conn.execute("INSERT INTO legacy_codes VALUES(?,?,?)", (copy["id"], old, accession(scope, number, copy["copy_no"])))
+            self.conn.execute("CREATE UNIQUE INDEX idx_class_number ON books(number_scope,class_no)")
+            self.conn.execute("CREATE INDEX idx_periodical ON books(issn,issue_year,issue_number)")
+            self.conn.execute(f"PRAGMA user_version={SCHEMA_VERSION}")
+
+    def _allocate_number(self, scope):
+        self.conn.execute("INSERT OR IGNORE INTO class_counters VALUES(?,1)", (scope,))
+        number = self.conn.execute("SELECT next_number FROM class_counters WHERE scope=?", (scope,)).fetchone()[0]
+        self.conn.execute("UPDATE class_counters SET next_number=next_number+1 WHERE scope=?", (scope,))
+        return number
+
+    @staticmethod
+    def number_scope(data):
+        return "MAG" if data.get("media_type", "book") == "magazine" else (data.get("clc_code", "").strip().upper() or "PENDING")
+
+    def code_for(self, book_id, copy_no=0):
+        record = self.book(book_id)
+        return accession(record["number_scope"], record["class_no"], copy_no)
+
+    def preview_code(self, data, book_id=None):
+        scope = self.number_scope(data)
+        existing = self.book(book_id) if book_id else None
+        if existing and existing["number_scope"] == scope:
+            return accession(scope, existing["class_no"])
+        counter = self.conn.execute("SELECT next_number FROM class_counters WHERE scope=?", (scope,)).fetchone()
+        return accession(scope, counter[0] if counter else 1)
 
     def close(self):
         self.conn.close()
@@ -141,13 +196,30 @@ class LibraryDB:
             (normalize_isbn(isbn),))] if isbn else []
 
     def possible_duplicates(self, data):
+        if data.get("media_type") == "magazine":
+            return [dict(r) for r in self.conn.execute(
+                "SELECT id,title,authors,publisher FROM books WHERE media_type='magazine' AND title=? AND issn=? AND issue_year=? AND issue_number=?",
+                (data.get("title", ""), data.get("issn", ""), data.get("issue_year", 0), data.get("issue_number", "")))]
         return [dict(r) for r in self.conn.execute(
-            "SELECT id,title,authors,publisher FROM books WHERE title=? AND authors=? AND publisher=?",
+            "SELECT id,title,authors,publisher FROM books WHERE media_type='book' AND title=? AND authors=? AND publisher=?",
             tuple(data.get(k, "") for k in ("title", "authors", "publisher")))]
 
     @staticmethod
     def _book_values(data):
         clean = {k: data.get(k, "") for k in BOOK_FIELDS}
+        clean["media_type"] = data.get("media_type", "book")
+        if clean["media_type"] not in ("book", "magazine"):
+            raise ValueError("请选择图书或杂志")
+        if clean["media_type"] == "magazine":
+            for key in ("isbn", "authors", "translators", "clc_code", "summary"):
+                clean[key] = ""
+            clean["issn"] = normalize_issn(clean["issn"])
+            clean["issue_year"] = validate_year(clean["issue_year"])
+            clean["issue_number"] = str(clean["issue_number"]).strip()
+            if not clean["issue_number"] or len(clean["issue_number"]) > 40:
+                raise ValueError("请核对并填写杂志期数")
+        else:
+            clean.update(issn="", issue_year=0, issue_number="", barcode_addon="")
         clean["isbn"] = normalize_isbn(clean["isbn"])
         clean["title"] = clean["title"].strip()
         clean["clc_code"] = clean["clc_code"].strip().upper()
@@ -159,31 +231,43 @@ class LibraryDB:
         clean["source_info"] = json.dumps(data.get("source_info", {}), ensure_ascii=False)
         return tuple(clean[k] for k in BOOK_FIELDS)
 
-    def save(self, data, year, location="", notes="", *, book_id=None, copy_id=None):
+    def save(self, data, year, location="", notes="", *, book_id=None, copy_id=None, reading_status="unread"):
         year = validate_year(year)
         values = self._book_values(data)
+        clean = dict(zip(BOOK_FIELDS, values))
+        if reading_status not in READING_STATES:
+            raise ValueError("阅读状态无效")
+        if clean["media_type"] == "magazine" and year != clean["issue_year"]:
+            raise ValueError("杂志年度与本册年份应一致")
+        scope = self.number_scope(clean)
         with self.conn:
             self.conn.execute("BEGIN IMMEDIATE")
             if book_id is None:
-                cur = self.conn.execute(f"INSERT INTO books({','.join(BOOK_FIELDS)}) VALUES({','.join('?' for _ in BOOK_FIELDS)})", values)
+                number = self._allocate_number(scope)
+                cur = self.conn.execute(f"INSERT INTO books({','.join(BOOK_FIELDS)},number_scope,class_no) VALUES({','.join('?' for _ in BOOK_FIELDS)},?,?)", (*values, scope, number))
                 book_id = cur.lastrowid
             else:
+                previous = self.book(book_id)
+                number = previous["class_no"] if previous["number_scope"] == scope else self._allocate_number(scope)
                 cur = self.conn.execute(f"UPDATE books SET {','.join(k+'=?' for k in BOOK_FIELDS)},updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?", (*values, book_id))
                 if cur.rowcount != 1:
                     raise ValueError("书目已不存在")
+                self.conn.execute("UPDATE books SET number_scope=?,class_no=? WHERE id=?", (scope, number, book_id))
+                if clean["media_type"] == "magazine":
+                    self.conn.execute("UPDATE copies SET publication_year=? WHERE book_id=?", (year, book_id))
             if copy_id is None:
                 copy_no = self.conn.execute("SELECT next_copy_no FROM books WHERE id=?", (book_id,)).fetchone()[0]
-                cur = self.conn.execute("INSERT INTO copies(book_id,copy_no,publication_year,location,notes) VALUES(?,?,?,?,?)",
-                                        (book_id, copy_no, year, location, notes))
+                cur = self.conn.execute("INSERT INTO copies(book_id,copy_no,publication_year,location,notes,reading_status) VALUES(?,?,?,?,?,?)",
+                                        (book_id, copy_no, year, location, notes, reading_status))
                 copy_id = cur.lastrowid
                 self.conn.execute("UPDATE books SET next_copy_no=next_copy_no+1 WHERE id=?", (book_id,))
             else:
-                cur = self.conn.execute("UPDATE copies SET publication_year=?,location=?,notes=? WHERE id=? AND book_id=?",
-                                        (year, location, notes, copy_id, book_id))
+                cur = self.conn.execute("UPDATE copies SET publication_year=?,location=?,notes=?,reading_status=? WHERE id=? AND book_id=?",
+                                        (year, location, notes, reading_status, copy_id, book_id))
                 if cur.rowcount != 1:
                     raise ValueError("馆藏册已不存在或所属书目不匹配")
                 copy_no = self.copy(copy_id)["copy_no"]
-        return copy_id, accession(values[5], book_id, copy_no)
+        return copy_id, accession(scope, number, copy_no)
 
     def delete_copy(self, copy_id):
         with self.conn:
@@ -191,10 +275,17 @@ class LibraryDB:
         # Keep the book and its counter so that a later copy never reuses a number.
 
     def search(self, quick="", fields=None, *, mode="AND", year_min=None, year_max=None,
-               exact_isbn=False, exact_code=False, flags=(), sort="default", descending=False):
+               exact_isbn=False, exact_code=False, flags=(), sort="default", descending=False,
+               media_type="", reading_status=""):
         clauses, values, advanced = [], [], []
+        if media_type:
+            clauses.append("b.media_type=?")
+            values.append(media_type)
+        if reading_status:
+            clauses.append("c.reading_status=?")
+            values.append(reading_status)
         if quick.strip():
-            columns = [SEARCH_FIELDS[k] for k in ("title", "authors", "translators", "publisher", "isbn", "code", "summary")]
+            columns = [SEARCH_FIELDS[k] for k in ("title", "authors", "translators", "publisher", "isbn", "issn", "issue_number", "code", "summary")]
             clauses.append("(" + " OR ".join(c + " LIKE ? ESCAPE '\\'" for c in columns) + ")")
             values.extend(["%" + like(quick.strip()) + "%"] * len(columns))
         for key, value in (fields or {}).items():
@@ -218,17 +309,18 @@ class LibraryDB:
             advanced.append("(" + " AND ".join(year_parts) + ")")
         if advanced:
             clauses.append("(" + (" OR " if mode == "OR" else " AND ").join(advanced) + ")")
-        flag_sql = {"pending": "b.clc_code=''", "no_cover": "b.cover_blob IS NULL",
+        flag_sql = {"pending": "b.clc_code='' AND b.media_type='book'", "no_cover": "b.cover_blob IS NULL",
                     "duplicates": "(SELECT COUNT(*) FROM copies cc WHERE cc.book_id=b.id)>1"}
         clauses.extend(flag_sql[f] for f in flags if f in flag_sql)
         order = SORTS.get(sort, SORTS["default"])
         if descending and sort not in ("default", "edition_year"):
             if sort == "code":
-                order = "COALESCE(NULLIF(b.clc_code,''),'PENDING') COLLATE NOCASE DESC, b.id DESC, c.copy_no DESC"
+                order = "b.number_scope COLLATE NOCASE DESC, b.class_no DESC, c.copy_no DESC"
             else:
                 order += " DESC"
         sql = f"""SELECT c.id,c.book_id,c.copy_no,{CODE_SQL} AS code,
              b.title,b.authors,b.translators,b.publisher,b.isbn,b.clc_code,b.summary,
+             b.media_type,b.issn,b.issue_year,b.issue_number,b.barcode,b.barcode_addon,c.reading_status,
              c.publication_year,c.location,c.notes,c.created_at,
              (SELECT COUNT(*) FROM copies cc WHERE cc.book_id=b.id) AS copy_count
              FROM copies c JOIN books b ON b.id=c.book_id"""
@@ -293,13 +385,16 @@ class LibraryDB:
         with self.conn:
             self.conn.execute("DELETE FROM copies")
             self.conn.execute("DELETE FROM books")
+            self.conn.execute("DELETE FROM class_counters")
+            self.conn.execute("DELETE FROM legacy_codes")
             self.conn.execute("DELETE FROM sqlite_sequence WHERE name IN ('books','copies')")
         return backup
 
     @staticmethod
     def export_csv(path, rows):
         fields = ["code", "title", "authors", "translators", "publisher", "isbn", "publication_year",
-                  "clc_code", "location", "notes", "created_at", "copy_count"]
+                  "clc_code", "location", "notes", "created_at", "copy_count", "media_type", "issn",
+                  "issue_year", "issue_number", "reading_status"]
         with open(path, "w", encoding="utf-8-sig", newline="") as stream:
             writer = csv.writer(stream)
             writer.writerow(fields)

@@ -1,0 +1,30 @@
+{
+  "purpose": "Local cover boundary detection in application 1.1",
+  "license": "Apache-2.0",
+  "assets": [
+    {
+      "file": "lcnet100_h_e_bifpn_256_fp32.onnx",
+      "url": "https://github.com/DocsaidLab/DocAligner/releases/download/1.1.1/lcnet100_h_e_bifpn_256_fp32.onnx",
+      "bytes": 4767987,
+      "sha256": "f4117b786e3a18470f3865c93f3c2bd69d9b998edd60f385574a5c665e79594e"
+    },
+    {
+      "file": "fastvit_t8_h_e_bifpn_256_fp32.onnx",
+      "url": "https://github.com/DocsaidLab/DocAligner/releases/download/1.1.1/fastvit_t8_h_e_bifpn_256_fp32.onnx",
+      "bytes": 13167814,
+      "sha256": "950070fd4a46e25d46db7c35d0ed77612d9063f70d4543c7c504f0da6a943a89"
+    },
+    {
+      "file": "docaligner-LICENSE",
+      "url": "https://raw.githubusercontent.com/DocsaidLab/DocAligner/3275b0f07f8e99d8c01cb0774dea2549be1416b6/LICENSE",
+      "bytes": 11357,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "file": "docaligner-README.md",
+      "url": "https://raw.githubusercontent.com/DocsaidLab/DocAligner/3275b0f07f8e99d8c01cb0774dea2549be1416b6/README.md",
+      "bytes": 13655,
+      "sha256": "c1ac223896d1a56920c0fcf4fc889b6aec07a3fb5e3e49536062d00b04137460"
+    }
+  ]
+}

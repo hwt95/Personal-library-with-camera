@@ -1,4 +1,6 @@
 import importlib.metadata
+import asyncio
+import importlib.util
 import json
 from pathlib import Path
 import sys
@@ -8,13 +10,14 @@ import traceback
 import cv2
 import numpy as np
 from PySide6.QtCore import qVersion, Qt
-from PySide6.QtGui import QRawFont, QTextLayout
+from PySide6.QtGui import QFont, QRawFont, QTextLayout
 
 from .database import LibraryDB
 from .imaging import Orientation, encode_cover, model_path, process_cover, detect_corners, zoom_frame
 from . import __version__, __author__
 from .window import MainWindow
 from .typography import FONT_FAMILIES, FONT_FILES, font_directory
+from . import edition
 
 
 def run(application, report_path):
@@ -33,7 +36,13 @@ def run(application, report_path):
         import zxingcpp
         import onnxruntime
         report["checks"]["bundled_imports"] = True
-        report["checks"]["bundled_chinese_font"] = QRawFont.fromFont(application.font()).supportsCharacter(ord("藏"))
+        report["data_mode"] = "offline" if edition.OFFLINE else "online"
+        if edition.OFFLINE:
+            assert importlib.util.find_spec("app.providers.catalog") is None
+            records, note = asyncio.run(edition.lookup("9787111544937", "nlc", "unused-key", "https://invalid.example/"))
+            assert records == [] and "离线" in note
+            report["checks"]["offline_adapter_absent"] = True
+        report["checks"]["bundled_chinese_font"] = QRawFont.fromFont(QFont("LXGW WenKai", 11)).supportsCharacter(ord("藏"))
         sample = "个人藏书管理 预设存放地点 图书简介 攝像頭 Gimi.H with Chatgpt model ISBN 9787111544937"
         shaped = QTextLayout(sample, application.font())
         shaped.beginLayout()
@@ -41,10 +50,13 @@ def run(application, report_path):
         shaped.endLayout()
         runs = shaped.glyphRuns()
         report["font_families"] = sorted({run.rawFont().familyName() for run in runs})
-        report["checks"]["bundled_google_fonts"] = bool(runs) and all(
+        report["checks"]["bundled_open_fonts"] = bool(runs) and all(
             run.rawFont().familyName() in FONT_FAMILIES and all(run.glyphIndexes()) for run in runs)
         report["checks"]["local_font_files_and_licenses"] = all((font_directory() / name).is_file()
-            for name in (*FONT_FILES, "WenKai-OFL.txt", "NotoSansSC-OFL.txt", "SOURCE.json"))
+            for name in (*FONT_FILES, "WenKai-OFL.txt", "Tinos-LICENSE.txt", "NotoSansArabic-OFL.txt", "SOURCE.json"))
+        assert {p.name for p in font_directory().glob("*.ttf")} == set(FONT_FILES)
+        assert application.font().weight() == 400
+        report["checks"]["regular_fonts_only"] = True
         report["checks"]["styled_file_dialogs"] = application.testAttribute(Qt.ApplicationAttribute.AA_DontUseNativeDialogs)
         report["onnxruntime"] = onnxruntime.__version__
         report["model_exists"] = model_path().is_file()
@@ -89,6 +101,12 @@ def run(application, report_path):
             assert json.loads((root / "settings.json").read_text(encoding="utf-8"))["location_presets"] == ["书房 A 架", "客厅书柜上层"]
             assert __version__ in window.windowTitle() and __author__ in window.settings_page.about.text()
             report["checks"]["version_and_author"] = True
+            assert "LGPLv3" in window.settings_page.license_notice.text()
+            report["checks"]["visible_lgpl_notice"] = True
+            if edition.OFFLINE:
+                assert window.settings_page.source.count() == 1 and window.settings_page.source.currentData() == "manual"
+                assert not window.settings_page.key.isEnabled()
+                report["checks"]["offline_settings"] = True
             window.setAttribute(Qt.WidgetAttribute.WA_DontShowOnScreen, True)
             window.show()
             application.processEvents()
@@ -129,6 +147,66 @@ def run(application, report_path):
             assert window.db.search(fields={"title": "离线手工旧书"})[0]["location"] == "书房 A 架"
             report["checks"]["preset_location_selection_and_save"] = True
             report["checks"]["ui_manual_save"] = True
+            from .dialogs import CornerEditor, CoverViewer
+            from .licenses import LicenseDialog, source_records, package_directory
+            from .i18n import LANGUAGES
+            from .boundary import detect as model_detect, MODELS
+            model_detect(border_frame)
+            assert all((MODELS / name).is_file() for name in ("fastvit_t8_h_e_bifpn_256_fp32.onnx", "lcnet100_h_e_bifpn_256_fp32.onnx"))
+            report["checks"]["bundled_boundary_models"] = True
+            assert window.windowFlags() & Qt.WindowType.FramelessWindowHint
+            assert not window.windowIcon().isNull()
+            report["checks"]["frameless_window_and_icon"] = True
+            license_dialog = LicenseDialog(window)
+            assert any(label == "LICENSE" for label,_ in license_dialog.documents)
+            assert any("WenKai-OFL" in label for label,_ in license_dialog.documents)
+            assert any("docaligner-LICENSE" in label for label,_ in license_dialog.documents)
+            license_dialog.show_sources()
+            assert len(source_records()) == 6
+            assert "https://download.qt.io/" in license_dialog.text.toHtml()
+            if report["frozen"]:
+                assert not (package_directory() / "sources").exists()
+                assert not (Path(sys._MEIPASS) / "onnxruntime/capi/onnxruntime.dll").exists()
+            report["checks"]["external_source_downloads"] = True
+            license_dialog.reject()
+            license_dialog.deleteLater()
+            report["checks"]["license_browser"] = True
+            window.release_save()
+            window.entry.media_type.setCurrentIndex(1)
+            window.entry.set_text("title", "自检期刊")
+            window.entry.set_text("publication_year", "2026")
+            window.entry.set_text("issue_number", "03")
+            window.entry.reading_status.setCurrentIndex(1)
+            window.save_entry()
+            magazine = window.db.search(media_type="magazine", reading_status="reading")
+            assert len(magazine) == 1 and magazine[0]["code"] == "MAG-001"
+            report["checks"]["magazine_and_reading_status"] = True
+            editor = CornerEditor(border_frame, expected.astype(np.float32), window)
+            editor.show()
+            application.processEvents()
+            assert editor.grab().save(str(report_path.with_name(report_path.stem + "-corners.png")))
+            editor.reject()
+            editor.deleteLater()
+            viewer = CoverViewer(cover, "Cover preview", window)
+            viewer.zoom.setValue(150)
+            assert not viewer.pixmap.isNull()
+            viewer.reject()
+            viewer.deleteLater()
+            report["checks"]["enlarged_corner_and_cover_views"] = True
+            original_language = window.language
+            for language in LANGUAGES:
+                window.settings_page.language.setCurrentIndex(window.settings_page.language.findData(language))
+                application.processEvents()
+                if language != "zh_CN":
+                    assert window.settings_page.source.findData("nlc") < 0
+                if language == "ar":
+                    text = QTextLayout("المكتبة الشخصية", application.font())
+                    text.beginLayout()
+                    text.createLine()
+                    text.endLayout()
+                    assert all(all(run.glyphIndexes()) for run in text.glyphRuns())
+            window.settings_page.language.setCurrentIndex(window.settings_page.language.findData(original_language))
+            report["checks"]["six_languages_and_source_filter"] = True
             window.close()
             application.processEvents()
             window = None

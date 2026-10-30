@@ -109,7 +109,7 @@ def test_edit_single_copy_preserves_other_copy_year_and_updates_clc(window, monk
     window.save_entry()
     assert window.db.copy(first)["publication_year"] == 2001
     assert window.db.copy(second)["publication_year"] == 2020
-    assert [r["code"] for r in window.db.search()] == ["TP303-000001", "TP303-000001(1)"]
+    assert [r["code"] for r in window.db.search()] == ["TP303-001", "TP303-001(1)"]
 
 
 def test_text_edit_shortcuts_are_not_global(window, application):
@@ -315,7 +315,7 @@ def test_location_menu_keyboard_does_not_save_or_reset_draft(window, application
 
 def test_version_and_author_are_explicitly_user_requested(window):
     from app import __version__, __author__
-    assert __version__ == "1.0"
+    assert __version__ == "1.1"
     assert __author__ == "Gimi.H with Chatgpt model"
-    assert window.windowTitle().endswith("1.0")
+    assert window.windowTitle().endswith("1.1")
     assert "Gimi.H with Chatgpt model" in window.settings_page.about.text()

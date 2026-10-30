@@ -11,8 +11,9 @@ ROOT = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser()
 parser.add_argument("--platform", choices=("offscreen", "windows"), default="offscreen")
 parser.add_argument("--report", help="Report filename under test/reports")
+parser.add_argument("--archive", type=Path, help="Explicit candidate ZIP to verify")
 args = parser.parse_args()
-archive = ROOT / "build" / "dist" / "PersonalLibrary-Windows-x64.zip"
+archive = args.archive or ROOT / "build" / "dist" / "PersonalLibrary-Windows-x64.zip"
 report_path = ROOT / "test" / "reports" / (args.report or ("portable-smoke.json" if args.platform == "offscreen" else "portable-native-smoke.json"))
 report_path.resolve().relative_to((ROOT / "test" / "reports").resolve())
 test_root = ROOT / "test" / "data"

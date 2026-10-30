@@ -1,42 +1,52 @@
 [
   {
-    "file": "LXGWWenKaiTC-Regular.ttf",
-    "url": "https://raw.githubusercontent.com/google/fonts/4e5f06dbb274a27ebe71ed54ea706b3ee40eabd9/ofl/lxgwwenkaitc/LXGWWenKaiTC-Regular.ttf",
-    "commit": "4e5f06dbb274a27ebe71ed54ea706b3ee40eabd9",
-    "bytes": 13110528,
-    "sha256": "4fcc5aec11cbbf737b0cfab7b63796f7f280087a7a656b2f13342cd5e5318d95",
-    "license": "OFL-1.1"
-  },
-  {
-    "file": "LXGWWenKaiTC-Bold.ttf",
-    "url": "https://raw.githubusercontent.com/google/fonts/4e5f06dbb274a27ebe71ed54ea706b3ee40eabd9/ofl/lxgwwenkaitc/LXGWWenKaiTC-Bold.ttf",
-    "commit": "4e5f06dbb274a27ebe71ed54ea706b3ee40eabd9",
-    "bytes": 12881104,
-    "sha256": "5c9feadfd928f3ae3860e7d001ad3d0d0c55b0157fff08cd4d51b51aca677f23",
+    "file": "LXGWWenKai-Regular.ttf",
+    "url": "https://github.com/lxgw/LxgwWenKai/releases/download/v1.530/LXGWWenKai-Regular.ttf",
+    "commit": "4becfb4d5cf0c92cfdb60a6e9b504bda43315325",
+    "version": "1.530",
+    "bytes": 25928940,
+    "sha256": "2d73eea94ad808999d90c0000c239a84a33b09d4bc6ab6c5b8bbf1eda8a7fc8b",
     "license": "OFL-1.1"
   },
   {
     "file": "WenKai-OFL.txt",
-    "url": "https://raw.githubusercontent.com/google/fonts/4e5f06dbb274a27ebe71ed54ea706b3ee40eabd9/ofl/lxgwwenkaitc/OFL.txt",
-    "commit": "4e5f06dbb274a27ebe71ed54ea706b3ee40eabd9",
-    "bytes": 4390,
-    "sha256": "4fff27d35db0e22cd81d58da6f20e09f415cf354a3338e3cf1fc0eb9222c7174",
+    "url": "https://raw.githubusercontent.com/lxgw/LxgwWenKai/4becfb4d5cf0c92cfdb60a6e9b504bda43315325/OFL.txt",
+    "commit": "4becfb4d5cf0c92cfdb60a6e9b504bda43315325",
+    "version": "1.530",
+    "bytes": 5171,
+    "sha256": "1a25e35da1031c6c3436fde545bb9cb5aca954e9873afe510c834b8b79bd21a0",
     "license": "OFL-1.1"
   },
   {
-    "file": "NotoSansSC.ttf",
-    "url": "https://raw.githubusercontent.com/google/fonts/a85815a42757630ce188fdad368c2dfc444d4773/ofl/notosanssc/NotoSansSC[wght].ttf",
-    "commit": "a85815a42757630ce188fdad368c2dfc444d4773",
-    "bytes": 17772300,
-    "sha256": "a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da",
+    "file": "Tinos-Regular.ttf",
+    "url": "https://raw.githubusercontent.com/googlefonts/tinos/3b4482a99b80ea5fc75f187b1be3120a3f5905b3/fonts/ttf/Tinos-Regular.ttf",
+    "commit": "3b4482a99b80ea5fc75f187b1be3120a3f5905b3",
+    "bytes": 521588,
+    "sha256": "60a0e8ef0c04dd5dd69ffe91025fa2ae5836cbd35600a82ba031977557e2cb61",
     "license": "OFL-1.1"
   },
   {
-    "file": "NotoSansSC-OFL.txt",
-    "url": "https://raw.githubusercontent.com/google/fonts/a85815a42757630ce188fdad368c2dfc444d4773/ofl/notosanssc/OFL.txt",
-    "commit": "a85815a42757630ce188fdad368c2dfc444d4773",
-    "bytes": 4388,
-    "sha256": "1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9",
+    "file": "Tinos-LICENSE.txt",
+    "url": "https://raw.githubusercontent.com/googlefonts/tinos/3b4482a99b80ea5fc75f187b1be3120a3f5905b3/OFL.txt",
+    "commit": "3b4482a99b80ea5fc75f187b1be3120a3f5905b3",
+    "bytes": 4383,
+    "sha256": "cb3382d4643e8b02c12e322c220a3c76a5020d667e4fd4e7c75e744cca6caa6b",
+    "license": "OFL-1.1"
+  },
+  {
+    "file": "NotoSansArabic.ttf",
+    "url": "https://raw.githubusercontent.com/google/fonts/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/notosansarabic/NotoSansArabic[wdth,wght].ttf",
+    "commit": "8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5",
+    "bytes": 844676,
+    "sha256": "63111b5b2e074dd48cc67692e0a2726d86ee94c1c37fe8598257b7b4e87e869e",
+    "license": "OFL-1.1"
+  },
+  {
+    "file": "NotoSansArabic-OFL.txt",
+    "url": "https://raw.githubusercontent.com/google/fonts/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/notosansarabic/OFL.txt",
+    "commit": "8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5",
+    "bytes": 4382,
+    "sha256": "07fc70bfeb985cc1a87a8587d0a0c80bab11c86c9dc3fd95b6f0cb332f983e96",
     "license": "OFL-1.1"
   }
 ]
