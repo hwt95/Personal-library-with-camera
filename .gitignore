@@ -30,6 +30,7 @@
 !/code/app/__init__.py
 !/code/app/boundary.py
 !/code/app/chrome.py
+!/code/app/classification.py
 !/code/app/database.py
 !/code/app/dialogs.py
 !/code/app/domain.py
@@ -95,6 +96,7 @@
 !/test/conftest.py
 !/test/fixtures/nlc_record.html
 !/test/test_camera.py
+!/test/test_classification.py
 !/test/test_database.py
 !/test/test_deployment.py
 !/test/test_edition.py

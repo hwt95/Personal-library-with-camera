@@ -14,6 +14,7 @@ from . import APP_NAME, __version__, __author__, PROJECT_URL, ISSUES_URL
 from .domain import normalize_issn, publication_barcode, validate_year
 from .i18n import tr
 from .edition import OFFLINE
+from .classification import SYSTEMS, FIELDS, system_label, resolve_system, active_code
 
 
 FIELD_LABELS = {"isbn": "ISBN", "title": tr('书名 *'), "authors": tr('作者 / 编者'), "translators": tr('译者'),
@@ -30,6 +31,9 @@ class EntryPage(QWidget):
         self.book_id = self.copy_id = None
         self.reference_pubdate = ""
         self.barcode_details = {}
+        self.classification_codes = {system: "" for system in SYSTEMS}
+        self.classification_dirty = set()
+        self.active_system = owner.default_classification_system()
         self.last_saved_book = None
         layout = QVBoxLayout(self)
         split = QSplitter()
@@ -61,6 +65,12 @@ class EntryPage(QWidget):
         self.media_type.addItem(tr('图书'), "book")
         self.media_type.addItem(tr('杂志 / 期刊'), "magazine")
         form.addRow(tr('类型'), self.media_type)
+        self.classification_system = QComboBox()
+        for system in SYSTEMS:
+            self.classification_system.addItem(system_label(system), system)
+        self.classification_system.setCurrentIndex(self.classification_system.findData(self.active_system))
+        self.classification_row = form.rowCount()
+        form.addRow(tr('分类体系'), self.classification_system)
         self.reading_status = QComboBox()
         for name, value in ((tr('未阅读'), "unread"), (tr('阅读中'), "reading"), (tr('已阅读'), "read")):
             self.reading_status.addItem(name, value)
@@ -110,7 +120,9 @@ class EntryPage(QWidget):
             else:
                 form.addRow(label, widget)
         self.media_type.currentIndexChanged.connect(self.media_changed)
+        self.classification_system.currentIndexChanged.connect(self.change_classification_system)
         self.media_changed()
+        self.refresh_classification_ui()
         self.new_edition = QCheckBox(tr('作为新版本登记（即使 ISBN 相同也建立独立书目）'))
         form.addRow("", self.new_edition)
         self.edit_hint = QLabel(tr('新书录入 · 书名和本册年份必填，其他资料可稍后补充'))
@@ -138,6 +150,7 @@ class EntryPage(QWidget):
             self.form.setRowVisible(self.form_rows[key], not magazine)
         self.form.setRowVisible(self.form_rows["clc_code"] + 1, not magazine)
         self.form.setRowVisible(self.form_rows["issue_number"], magazine)
+        self.form.setRowVisible(self.classification_row, not magazine)
         for key, label in (("isbn", tr('ISSN / 条码') if magazine else "ISBN"),
                            ("title", tr('刊名 *') if magazine else tr('书名 *')),
                            ("publication_year", tr('年度 *') if magazine else tr('本册年份 *'))):
@@ -145,6 +158,27 @@ class EntryPage(QWidget):
         self.fields["isbn"].setPlaceholderText(tr('ISSN 或 977 条码，可附两位期数码') if magazine else tr('手工输入 ISBN-10/13，回车查询'))
         self.lookup_button.setText(tr('读取条码') if magazine else tr('查询资料'))
         self.year_reference.setVisible(not magazine)
+
+    def change_classification_system(self):
+        self.classification_codes[self.active_system] = self.text("clc_code")
+        self.active_system = self.classification_system.currentData()
+        self.set_text("clc_code", self.classification_codes[self.active_system])
+        self.dirty.update(("clc_code", "classification_system"))
+        self.refresh_classification_ui()
+
+    def refresh_classification_ui(self):
+        examples = {"clc": "TP303", "ddc": "005.133", "lcc": "QA76.73.P98"}
+        self.form.itemAt(self.form_rows["clc_code"], QFormLayout.ItemRole.LabelRole).widget().setText(self.active_system.upper() + " " + tr('分类号'))
+        self.fields["clc_code"].setPlaceholderText(tr('例如 {code}；留空表示待分类', code=examples[self.active_system]))
+        self.owner.update_classification_hint()
+
+    def select_classification_system(self, system):
+        self.classification_system.blockSignals(True)
+        self.classification_system.setCurrentIndex(self.classification_system.findData(system))
+        self.classification_system.blockSignals(False)
+        self.active_system = system
+        self.set_text("clc_code", self.classification_codes[system])
+        self.refresh_classification_ui()
 
     def apply_barcode(self, record):
         self.barcode_details = dict(record)
@@ -181,6 +215,8 @@ class EntryPage(QWidget):
 
     def mark_dirty(self, key):
         self.dirty.add(key)
+        if key == 'clc_code':
+            self.classification_dirty.add(self.active_system)
         if key == "isbn":
             self.owner.cancel_lookup(silent=True)
             self.owner.queried_isbn = ""
@@ -218,17 +254,31 @@ class EntryPage(QWidget):
         data.update(cover_blob=self.cover_blob, cover_mime=self.cover_mime,
                     reference_pubdate=self.reference_pubdate, source_info=info)
         data["media_type"] = self.media_type.currentData()
+        codes = dict(self.classification_codes)
+        codes[self.active_system] = self.text("clc_code")
+        data.update({field: codes[system] for system, field in FIELDS.items()})
+        data["classification_system"] = self.active_system
         if data["media_type"] == "magazine":
             identifier = self.text("isbn")
             record = publication_barcode(identifier) if identifier.startswith("977") else self.barcode_details
             data.update(issn=record.get("issn", "") if identifier.startswith("977") else normalize_issn(identifier),
                         issue_year=validate_year(self.text("publication_year")), issue_number=self.text("issue_number"),
                         barcode=record.get("barcode", ""), barcode_addon=record.get("barcode_addon", ""))
-            for key in ("isbn", "authors", "translators", "clc_code", "summary"):
+            for key in ("isbn", "authors", "translators", "clc_code", "ddc_code", "lcc_code", "summary"):
                 data[key] = ""
         return data
 
     def fill(self, data, *, protect=True):
+        if "clc_code" in self.dirty:
+            self.classification_codes[self.active_system] = self.text("clc_code")
+        for system, field in FIELDS.items():
+            if not (protect and (system in self.classification_dirty or (system == self.active_system and "clc_code" in self.dirty))):
+                if data.get(field) or not protect:
+                    self.classification_codes[system] = data.get(field, "")
+        system = data.get("classification_system", self.active_system)
+        if protect and "classification_system" in self.dirty:
+            system = self.active_system
+        self.select_classification_system(system)
         self.media_type.setCurrentIndex(1 if data.get("media_type") == "magazine" else 0)
         if data.get("media_type") == "magazine":
             self.barcode_details = {key: data.get(key, "") for key in ("barcode", "barcode_addon", "issn")}
@@ -237,7 +287,7 @@ class EntryPage(QWidget):
             self.set_text("issue_number", data.get("issue_number", ""))
             self.update_barcode_hint()
         protected = self.dirty.copy() if protect else set()
-        for key in ("isbn", "title", "authors", "translators", "publisher", "clc_code", "summary"):
+        for key in ("isbn", "title", "authors", "translators", "publisher", "summary"):
             if key not in protected and data.get(key):
                 self.set_text(key, data[key])
         self.reference_pubdate = data.get("reference_pubdate", "")
@@ -246,7 +296,7 @@ class EntryPage(QWidget):
         self.source_info = dict(data.get("source_info", {}))
         provenance = dict(self.source_info.get("fields", {}))
         provider = self.source_info.get("provider", "local")
-        for key in ("isbn", "title", "authors", "translators", "publisher", "clc_code", "summary"):
+        for key in ("isbn", "title", "authors", "translators", "publisher", "clc_code", "ddc_code", "lcc_code", "summary"):
             if data.get(key) and key not in protected:
                 provenance.setdefault(key, provider)
         self.source_info["fields"] = provenance
@@ -267,6 +317,9 @@ class EntryPage(QWidget):
         self.book_id = self.copy_id = None
         self.dirty.clear()
         self.barcode_details = {}
+        self.classification_codes = {system: "" for system in SYSTEMS}
+        self.classification_dirty.clear()
+        self.select_classification_system(self.owner.default_classification_system())
         self.update_barcode_hint()
         self.media_type.setEnabled(True)
         self.reading_status.blockSignals(True)
@@ -281,9 +334,10 @@ class EntryPage(QWidget):
 
 class CatalogPage(QWidget):
     COLUMNS = [("code", tr('馆藏编码')), ("title", tr('书名')), ("summary", tr('简介')), ("authors", tr('作者')), ("translators", tr('译者')),
-               ("publisher", tr('出版社')), ("publication_year", tr('年份')), ("clc_code", tr('分类号')),
+               ("publisher", tr('出版社')), ("publication_year", tr('年份')), ("classification_code", tr('分类号')),
                ("location", tr('位置')), ("created_at", tr('录入时间（UTC）')), ("copy_count", tr('册数')),
-               ("media_type", tr('类型')), ("issue_number", tr('期数')), ("reading_status", tr('阅读状态'))]
+               ("media_type", tr('类型')), ("issue_number", tr('期数')), ("reading_status", tr('阅读状态')),
+               ("classification_system", tr('分类体系'))]
 
     def __init__(self, owner, *, advanced=False):
         super().__init__()
@@ -397,6 +451,8 @@ class CatalogPage(QWidget):
         for i, item in enumerate(self.rows):
             for j, (key, _) in enumerate(self.COLUMNS):
                 value = str(item[key])
+                if key == "classification_system":
+                    value = item[key].upper() if item["media_type"] == "book" else "—"
                 if key in ("reading_status", "media_type"):
                     value = {"unread": tr('未阅读'), "reading": tr('阅读中'), "read": tr('已阅读'), "book": tr('图书'), "magazine": tr('杂志 / 期刊')}.get(value, value)
                 if key == "summary":
@@ -407,7 +463,7 @@ class CatalogPage(QWidget):
                     start = max(0, match - 25)
                     value = ("…" if start else "") + full_text[start:start+120] + ("…" if len(full_text) > start+120 else "")
                     value = value or tr('暂无简介')
-                if key == "code" and not item["clc_code"] and item["media_type"] == "book":
+                if key == "code" and not item["classification_code"] and item["media_type"] == "book":
                     value += tr(' · 临时')
                 cell = QTableWidgetItem(value)
                 cell.setToolTip(str(item[key]) if key == "summary" else value)
@@ -465,6 +521,10 @@ class CatalogPage(QWidget):
                 tr("期数") + f": {data['issue_number']}\n" + tr("位置") + f": {item['location']}\n" + tr("备注") + f": {item['notes']}")
         else:
             self.details.setPlainText(tr('{v0}\n{v1}\n\nISBN：{v2}\n本册年份：{v3}\n网络参考年份：{v4}\n位置：{v5}\n来源：{v6}\n原始分类：{v7}\n原始署名：{v8}\n\n简介：\n{v9}\n\n备注：{v10}', v0=(data['title']), v1=(item['code']), v2=(data['isbn'] or '—'), v3=(item['publication_year']), v4=(data['reference_pubdate'] or '—'), v5=(item['location'] or '—'), v6=(info.get('source_fullname',info.get('provider','—'))), v7=(info.get('raw_classification','')), v8=(info.get('responsibility','')), v9=(data['summary'] or tr('暂无简介')), v10=(item['notes'])) + "\n" + tr("阅读状态") + ": " + state)
+            self.details.append('\n' + system_label(data['classification_system']) + ': ' + (active_code(data) or '—'))
+            for system, field in FIELDS.items():
+                if system != data['classification_system'] and data[field]:
+                    self.details.append(system.upper() + ': ' + data[field])
             if info.get("provider") == "国家图书馆":
                 self.details.append("\n" + tr("国图数据源仅供测试，不能用于商业用途。来源全称：中国国家图书馆·中国国家数字图书馆网站（https://www.nlc.cn/）。引用时保留作者与出处；其他使用须遵守该网站版权声明并取得所需许可。"))
 
@@ -526,6 +586,24 @@ class SettingsPage(QWidget):
         self.language.setCurrentIndex(max(0, self.language.findData(owner.language)))
         self.language.currentIndexChanged.connect(self.change_language)
         layout.addWidget(row(QLabel(tr('界面语言')), self.language))
+        classification = QGroupBox(tr('图书分类与馆藏编号'))
+        classification_layout = QVBoxLayout(classification)
+        self.classification_mode = QComboBox()
+        for mode in ('auto', *SYSTEMS):
+            self.classification_mode.addItem(system_label(mode), mode)
+        classification_layout.addWidget(self.classification_mode)
+        self.classification_note = QLabel()
+        self.classification_note.setWordWrap(True)
+        classification_layout.addWidget(self.classification_note)
+        self.classification_apply = button(tr('应用分类规则…'), owner.apply_classification_policy, primary=True)
+        self.classification_history = button(tr('导出编号变更记录'), owner.export_numbering_history)
+        classification_layout.addWidget(row(self.classification_apply, self.classification_history))
+        note = QLabel(tr('规则保存在当前数据库中。语言切换只影响自动模式下的新录入；已有书目和当前草稿保留原体系。应用时可选择是否同步。'))
+        note.setWordWrap(True)
+        classification_layout.addWidget(note)
+        layout.addWidget(classification)
+        self.classification_mode.currentIndexChanged.connect(self.preview_classification)
+        self.refresh_classification()
         locations = QGroupBox(tr('预设存放地点'))
         location_layout = QVBoxLayout(locations)
         self.location_list = QListWidget()
@@ -586,7 +664,7 @@ class SettingsPage(QWidget):
         form.addRow(tr('摄像头序号'), self.camera_index)
         form.addRow("", button(tr('保存设置'), self.save, primary=True))
         layout.addWidget(sources)
-        help_label = QLabel(tr('无需安装 Python、Qt、OpenCV 或模型运行环境；保持 exe 与 _internal 文件夹在一起。\n离线可录入、编辑、检索、拍摄封面。联网仅用于您发起的书目查询和封面下载。\n自动分类依赖来源提供的中图分类号；未命中时可手填或暂存为待分类。\n录入页：ISBN 回车查询；资料就绪后回车保存；Ctrl+Enter 保存；Esc 重置。\n简介中的回车保留换行；输入框中的 Backspace 正常删除字符。'))
+        help_label = QLabel(tr('无需安装 Python、Qt、OpenCV 或模型运行环境；保持 exe 与 _internal 文件夹在一起。\n离线可录入、编辑、检索、拍摄封面。联网仅用于您发起的书目查询和封面下载。\n分类号采用来源明确提供的所选体系编号；缺失时可手填或暂存为待分类。\n录入页：ISBN 回车查询；资料就绪后回车保存；Ctrl+Enter 保存；Esc 重置。\n简介中的回车保留换行；输入框中的 Backspace 正常删除字符。'))
         help_label.setWordWrap(True)
         if OFFLINE:
             help_label.setText(help_label.text().replace(tr('联网仅用于您发起的书目查询和封面下载。'), tr('此版本不进行联网书目查询或封面下载。')))
@@ -598,6 +676,22 @@ class SettingsPage(QWidget):
         scroll.setFrameShape(QScrollArea.Shape.NoFrame)
         scroll.setWidget(content)
         outer.addWidget(scroll)
+
+    def refresh_classification(self):
+        mode = self.owner.db.classification_mode if self.owner.db else 'auto'
+        self.classification_mode.blockSignals(True)
+        self.classification_mode.setCurrentIndex(self.classification_mode.findData(mode))
+        self.classification_mode.blockSignals(False)
+        self.classification_apply.setEnabled(self.owner.db is not None)
+        self.classification_history.setEnabled(self.owner.db is not None)
+        self.preview_classification()
+
+    def preview_classification(self):
+        system = resolve_system(self.classification_mode.currentData(), self.owner.language)
+        example = {'clc': 'TP303-001', 'ddc': 'DDC-005.133-001', 'lcc': 'LCC-QA76.73.P98-001'}[system]
+        current = system_label(self.owner.default_classification_system())
+        self.classification_note.setText(tr('当前规则：{current}\n所选规则：{selected}；编号示例：{example}',
+            current=current, selected=system_label(system), example=example))
 
     def open_licenses(self):
         from .licenses import LicenseDialog

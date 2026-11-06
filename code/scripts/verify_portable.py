@@ -6,14 +6,17 @@ import os
 import subprocess
 import tempfile
 import zipfile
+import sys
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / 'code'))
+from app import __version__
 parser = argparse.ArgumentParser()
 parser.add_argument("--platform", choices=("offscreen", "windows"), default="offscreen")
 parser.add_argument("--report", help="Report filename under test/reports")
 parser.add_argument("--archive", type=Path, help="Explicit candidate ZIP to verify")
 args = parser.parse_args()
-archive = args.archive or ROOT / "build" / "dist" / "PersonalLibrary-Windows-x64.zip"
+archive = args.archive or ROOT / "build" / "dist" / f"PersonalLibrary-v{__version__}-Windows-x64.zip"
 report_path = ROOT / "test" / "reports" / (args.report or ("portable-smoke.json" if args.platform == "offscreen" else "portable-native-smoke.json"))
 report_path.resolve().relative_to((ROOT / "test" / "reports").resolve())
 test_root = ROOT / "test" / "data"

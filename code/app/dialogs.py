@@ -5,12 +5,14 @@ from PySide6.QtCore import Qt, QTimer, QEvent, QRectF
 from PySide6.QtGui import QPainter, QColor, QPen, QPixmap
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, QListWidget,
     QDialogButtonBox, QLineEdit, QTreeWidget, QTreeWidgetItem, QMessageBox, QApplication,
-    QScrollArea, QSlider, QWidget, QComboBox)
+    QScrollArea, QSlider, QWidget, QComboBox, QRadioButton, QTableWidget, QTableWidgetItem,
+    QHeaderView, QAbstractItemView)
 
 from .widgets import ImageView, CameraControls, row, button
 from .imaging import encode_cover
 from .workers import CoverWorker, BorderWorker
 from .chrome import AppDialog
+from .classification import system_label
 
 
 class CornerLoupe(QWidget):
@@ -132,16 +134,56 @@ class CandidateDialog(AppDialog):
         return self.candidates[self.items.currentRow()] if self.items.currentRow() >= 0 else None
 
 
-class ClassificationDialog(AppDialog):
-    def __init__(self, db, parent):
+class ClassificationPolicyDialog(AppDialog):
+    def __init__(self, target, plan, parent):
         super().__init__(parent)
+        self.setWindowTitle(tr('应用分类规则'))
+        self.resize(860, 610)
+        layout = QVBoxLayout(self)
+        summary = QLabel(system_label(target) + '\n' + tr(
+            '若同步：{books} 种书目、{copies} 册将变更编号，其中 {pending} 种缺少目标分类号。',
+            books=len(plan), copies=sum(len(item['copies']) for item in plan),
+            pending=sum(item['pending'] for item in plan)))
+        summary.setWordWrap(True)
+        layout.addWidget(summary)
+        note = QLabel(tr('不同体系不能直接互换。同步使用已有目标分类号，缺失时标为待分类；原分类资料保留。杂志编号不变。'))
+        note.setWordWrap(True)
+        layout.addWidget(note)
+        self.future_only = QRadioButton(tr('仅用于新录入（保留已有编码）'))
+        self.synchronize = QRadioButton(tr('同步已有书目（先备份）'))
+        self.future_only.setChecked(True)
+        layout.addWidget(self.future_only)
+        layout.addWidget(self.synchronize)
+        caption = QLabel(tr('同步预览（最多显示 200 种书目；副本后缀不变）'))
+        caption.setWordWrap(True)
+        layout.addWidget(caption)
+        table = QTableWidget(min(len(plan), 200), 3)
+        table.setHorizontalHeaderLabels([tr('书名'), tr('原编码'), tr('同步后编码')])
+        table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        for row_index, item in enumerate(plan[:200]):
+            for column, key in enumerate(('title', 'old_code', 'new_code')):
+                cell = QTableWidgetItem(item[key])
+                cell.setToolTip(item[key])
+                table.setItem(row_index, column, cell)
+        layout.addWidget(table, 1)
+        layout.addWidget(row(button(tr('应用'), self.accept, primary=True), button(tr('取消'), self.reject)))
+
+
+class ClassificationDialog(AppDialog):
+    def __init__(self, db, parent, *, system='clc'):
+        super().__init__(parent)
+        self.system = system
         self.db, self.selected_code = db, ""
-        self.setWindowTitle(tr('中图分类字典'))
+        self.setWindowTitle(system_label(system) + ' · ' + tr('分类字典'))
         self.resize(650, 580)
         layout = QVBoxLayout(self)
         self.query = QLineEdit()
         self.query.setPlaceholderText(tr('搜索分类号或名称；字典未收录的细分类可直接在录入页输入'))
         layout.addWidget(self.query)
+        note = QLabel(tr('字典按体系独立保存；可在设置中导入有权使用的 CSV，或直接填写分类号。未内置完整 DDC / LCC 类目表。'))
+        note.setWordWrap(True)
+        layout.addWidget(note)
         self.tree = QTreeWidget()
         self.tree.setHeaderLabels([tr('分类号'), tr('名称')])
         layout.addWidget(self.tree)
@@ -152,7 +194,7 @@ class ClassificationDialog(AppDialog):
 
     def populate(self):
         self.tree.clear()
-        records = self.db.classifications(self.query.text().strip())
+        records = self.db.classifications(self.query.text().strip(), system=self.system)
         nodes = {r["code"]: QTreeWidgetItem([r["code"], r["name"]]) for r in records}
         for record in records:
             item = nodes[record["code"]]

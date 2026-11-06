@@ -96,6 +96,17 @@ def run(application, report_path):
             assert restored.stats() == (1, 2)
             restored.close()
             report["checks"]["database_cover_backup"] = True
+            classification_db = LibraryDB(root / 'classification.sqlite3', create=True, language='en')
+            try:
+                assert classification_db.save({'title': 'DDC test', 'ddc_code': '005.133', 'lcc_code': 'QA76.73.P98'}, 2026)[1] == 'DDC-005.133-001'
+                classification_db.set_classification_policy('clc', 'en')
+                assert classification_db.code_for(1) == 'DDC-005.133-001'
+                migrated = classification_db.set_classification_policy('lcc', 'en', synchronize=True)
+                assert migrated['backup'].is_file() and classification_db.code_for(1) == 'LCC-QA76.73.P98-001'
+                assert classification_db.conn.execute('SELECT COUNT(*) FROM numbering_history').fetchone()[0] == 1
+                report['checks']['classification_policy_backup_sync'] = True
+            finally:
+                classification_db.close()
             window = MainWindow(root / "settings.json", database=path, smoke=True)
             assert window.set_location_presets(["书房 A 架", "客厅书柜上层"])
             assert json.loads((root / "settings.json").read_text(encoding="utf-8"))["location_presets"] == ["书房 A 架", "客厅书柜上层"]
@@ -143,7 +154,8 @@ def run(application, report_path):
             report["entry_screenshot"] = str(entry_screenshot)
             window.save_entry()
             assert window.db.stats() == (2, 3)
-            assert window.db.search(fields={"title": "离线手工旧书"})[0]["code"].startswith("PENDING-")
+            expected_prefix = 'PENDING-' if window.entry.active_system == 'clc' else window.entry.active_system.upper() + '-PENDING-'
+            assert window.db.search(fields={"title": "离线手工旧书"})[0]["code"].startswith(expected_prefix)
             assert window.db.search(fields={"title": "离线手工旧书"})[0]["location"] == "书房 A 架"
             report["checks"]["preset_location_selection_and_save"] = True
             report["checks"]["ui_manual_save"] = True

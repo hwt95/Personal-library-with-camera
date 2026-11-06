@@ -7,8 +7,8 @@
 <p align="center"><strong>A place for every book. Your reading at a glance.<br>让每本书有处可寻，让阅读状态一目了然。</strong></p>
 
 <p align="center">
-  Windows 10 / 11 · x64 · v1.1<br>
-  <a href="https://github.com/hwt95/Personal-library-with-camera/releases/tag/v1.1"><strong>Download / 下载</strong></a> ·
+  Windows 10 / 11 · x64 · v1.2<br>
+  <a href="https://github.com/hwt95/Personal-library-with-camera/releases/tag/v1.2"><strong>Download / 下载</strong></a> ·
   <a href="#english">English</a> · <a href="#简体中文">简体中文</a> ·
   <a href="LICENSE">PolyForm Noncommercial 1.0.0</a>
 </p>
@@ -35,13 +35,13 @@
 <h3>What makes it different</h3>
 <p><strong>One camera, a continuous workflow.</strong> After a scan, the camera stays ready for the cover photo.</p>
 <p><strong>Automatic framing, with room for your eye.</strong> Local models find the corners and orientation. A magnifier and keyboard controls help with the finishing touches.</p>
-<p><strong>Made for real shelves.</strong> Class-based call numbers, separate copies, six interface languages, and a portable folder you can take with you.</p>
+<p><strong>Made for real shelves.</strong> CLC, DDC or LCC call numbers that suit your shelves, separate copies, six interface languages, and a portable folder you can take with you.</p>
 </td>
 <td valign="top">
 <h3>创新点与贴心设计</h3>
 <p><strong>一扫一拍，顺手录完。</strong> 扫码后摄像头继续工作，直接接上封面拍摄。</p>
 <p><strong>自动找边，细节由你掌握。</strong> 本地模型识别四角和朝向，配合顶点放大镜与键盘微调，把封面裁得更合心意。</p>
-<p><strong>围着真实书架来设计。</strong> 分类内编号、独立副本、六种界面语言，装在一个可以随身带走的便携文件夹里。</p>
+<p><strong>围着真实书架来设计。</strong> CLC、DDC、LCC 三种分类编号，配合独立副本和六种界面语言，装在一个可以随身带走的便携文件夹里。</p>
 </td>
 </tr>
 </tbody>
@@ -61,6 +61,14 @@ Book lookups use Open Library and, when you provide a key, Google Books. The Sim
 
 Magazines have their own entry layout with a year and issue number. You can mark a book or magazine as unread, in progress or finished, then use those choices to find your next read.
 
+### A classification that fits your shelves
+
+Version 1.2 lets you use CLC, DDC or LCC. In automatic mode, Simplified Chinese starts with CLC and the other interface languages start with DDC. You can choose a different rule for each library, or a different system for a single book. Switching languages leaves your existing books and unfinished entry alone.
+
+If you decide to reorganise, choose whether the new rule applies only to future entries or also to existing books. You see the affected copies and proposed call numbers before applying it. The application makes a backup first and keeps an exportable old-to-new numbering record; magazine numbers and copy suffixes stay in place.
+
+Open Library can supply explicit DDC and LCC numbers. When the number you need is missing, the book waits for classification until you fill it in. The application does not guess a conversion between systems or include complete DDC/LCC schedules.
+
 ### A cover that looks like your book
 
 Use the live camera or an existing photo. The application finds the cover edges, straightens the perspective and suggests an upright orientation, all on your computer. Drag a corner, open the magnified editor or rotate the image when it needs a small adjustment. Your cover photos stay on your device.
@@ -69,11 +77,11 @@ Use the live camera or an existing photo. The application finds the cover edges,
 
 Your catalogue, copies and saved covers live in a SQLite file that you choose. The application offers full backups and CSV exports, and the portable package includes its runtime, fonts and local models. The interface is available in English, Simplified Chinese, French, Spanish, Russian and Arabic.
 
-1. Download **PersonalLibrary-v1.1-Windows-x64.zip** from [Releases](https://github.com/hwt95/Personal-library-with-camera/releases/tag/v1.1).
+1. Download **PersonalLibrary-v1.2-Windows-x64.zip** from [Releases](https://github.com/hwt95/Personal-library-with-camera/releases/tag/v1.2).
 2. Extract the whole folder and open **PersonalLibrary.exe**. Keep the `_internal` folder beside it.
 3. Create a library or open your existing one. Choose a folder you can write to and back up easily.
 
-Moving from 1.0? Version 1.1 makes a backup before upgrading an older database and keeps a record of the old and new call numbers. Keep that backup if you may return to the older application.
+**Upgrading from 1.1?** Version 1.2 makes a backup before opening the library in its new database format. Your existing call numbers stay as they are; reorganising existing books is a separate choice in settings. Once upgraded, the library needs version 1.2. To return to an older application, open a copy of the backup made before the upgrade. Libraries from 1.0 are also supported and retain their numbering-change record.
 
 ### Licence and credits
 
@@ -81,7 +89,7 @@ The original application is available under the unmodified [PolyForm Noncommerci
 
 Third-party software, fonts, models and data keep their own terms. See [licence scope](LICENSING.md), [data sources](DATA_SOURCES.md), and [corresponding third-party source downloads](docs/SOURCE_DOWNLOADS.md). Those source downloads are for people who want to study or change the libraries; they are not needed to run the application.
 
-[What's new in 1.1](CHANGELOG.md) · [Build from source](docs/BUILD.md) · [Report an issue](https://github.com/hwt95/Personal-library-with-camera/issues)
+[What's new in 1.2](CHANGELOG.md) · [Build from source](docs/BUILD.md) · [Report an issue](https://github.com/hwt95/Personal-library-with-camera/issues)
 
 ## 简体中文
 
@@ -97,6 +105,14 @@ Third-party software, fonts, models and data keep their own terms. See [licence 
 
 杂志有单独的录入方式，可以记录年度和期数。给图书或杂志标上“未阅读”“阅读中”或“已阅读”，下次想找一本书接着读，就更容易了。分类内递增的馆藏编号和副本后缀，也能让书架上的次序更清楚。
 
+### 让分类方式跟着你的书架走
+
+1.2 可以使用 CLC、DDC 或 LCC。保持自动模式就能开始：简体中文默认 CLC，其他界面语言默认 DDC。每个书库可以选择自己的规则，每本书也能单独指定体系。切换语言时，已经整理好的书目和正在填写的草稿都会保留原样。
+
+想换一种方式整理，可以让新规则只用于以后录入的图书，也可以同步已有书目。应用前会列出涉及的册数和新旧编号，让你先看清变化；程序会先备份，再保存可导出的编号变更记录。杂志编号和副本后缀保持原样。
+
+Open Library 明确提供的 DDC、LCC 分类号可以直接使用。缺少需要的分类号时，就先放进待分类，等你有空补上。程序不猜测不同体系之间的对应关系，也没有内置完整的 DDC、LCC 类目表。
+
 ### 给封面留一个舒服的样子
 
 可以实时拍摄，也可以导入已有照片。本地模型帮你找四角、裁正透视、调整朝向；遇到反光或边缘不清楚的封面，再拖动顶点，用放大镜和方向键慢慢修整。你拍下的照片始终在本机处理。
@@ -105,11 +121,11 @@ Third-party software, fonts, models and data keep their own terms. See [licence 
 
 书目、实体副本和封面保存在你选择的 SQLite 文件里，随时可以完整备份或导出 CSV。便携包带齐运行库、字体和模型，解压就能用。界面支持简体中文、英语、法语、西班牙语、俄语和阿拉伯语，可在设置中切换。
 
-1. 在 [Releases](https://github.com/hwt95/Personal-library-with-camera/releases/tag/v1.1) 下载 **PersonalLibrary-v1.1-Windows-x64.zip**。
+1. 在 [Releases](https://github.com/hwt95/Personal-library-with-camera/releases/tag/v1.2) 下载 **PersonalLibrary-v1.2-Windows-x64.zip**。
 2. 完整解压后打开 **PersonalLibrary.exe**，保留旁边的 `_internal` 文件夹。
 3. 新建书库或打开已有书库，选一个方便保存和备份的位置。
 
-从 1.0 升级时，程序会先备份旧数据库，再更新结构和馆藏编号，并保留旧新编号对照。如果以后还要使用旧版程序，请留好升级前的备份。
+**从 1.1 升级时，**程序会先备份，再更新书库结构，已有馆藏编号保留原样；是否同步已有书目，需要在设置中另行选择。升级后的书库需要使用 1.2，旧版无法打开新结构。如果要回到旧版，请打开升级前备份的副本。1.0 书库也可以升级，并保留编号变更记录。
 
 ### 许可与署名
 
@@ -117,6 +133,6 @@ Third-party software, fonts, models and data keep their own terms. See [licence 
 
 第三方软件、字体、模型和数据各自保留原有条款。具体见[许可范围](LICENSING.md)、[数据源说明](DATA_SOURCES.md)和[第三方对应源码下载](docs/SOURCE_DOWNLOADS.md)。源码下载供需要研究或修改组件的人使用，日常运行不需要另外下载。
 
-[1.1 更新内容](CHANGELOG.md) · [详细使用说明](code/USER_GUIDE.md) · [从源码构建](docs/BUILD.md) · [问题反馈](https://github.com/hwt95/Personal-library-with-camera/issues)
+[1.2 更新内容](CHANGELOG.md) · [详细使用说明](code/USER_GUIDE.md) · [从源码构建](docs/BUILD.md) · [问题反馈](https://github.com/hwt95/Personal-library-with-camera/issues)
 
 <p align="center">Gimi.H with Chatgpt model</p>

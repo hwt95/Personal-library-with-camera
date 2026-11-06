@@ -230,7 +230,7 @@ def main():
     # Keep the source directions beside the downloadable binary as well as in its UI.
     shutil.copy2(PACKAGE / "SOURCE_CODE.md", DIST / "SOURCE_DOWNLOADS.md")
     # Packaging uses only the staging tree; an existing library or API key cannot leak into the ZIP.
-    archive = shutil.make_archive(str(DIST / "PersonalLibrary-Windows-x64"), "zip", STAGED_DIST, PACKAGE.name)
+    archive = shutil.make_archive(str(DIST / f"PersonalLibrary-v{__version__}-Windows-x64"), "zip", STAGED_DIST, PACKAGE.name)
     archive_path = Path(archive)
     digest = hashlib.sha256(archive_path.read_bytes()).hexdigest()
     archive_path.with_suffix(".zip.sha256").write_text(f"{digest}  {archive_path.name}\n", encoding="ascii")

@@ -1,5 +1,23 @@
 # Changelog · 更新日志
 
+## 1.2 — 2026-11-07
+
+### English
+
+- Choose CLC, DDC or LCC for your books. Automatic mode starts with CLC in Simplified Chinese and DDC in the other interface languages; each library remembers its own rule.
+- Keep each book's classification system and numbers. Language changes leave existing records and unfinished entries alone; search, details, classification dictionaries and CSV exports follow the selected system.
+- Apply a new rule to future entries or reorganise existing books after viewing the affected copies and proposed call numbers. A full backup comes first, and numbering changes can be exported. Magazine numbers and copy suffixes stay in place.
+- Read explicit DDC and LCC numbers from Open Library. Missing numbers remain pending; the application does not infer cross-system mappings or bundle complete DDC/LCC schedules.
+- Upgrade to database format 3 with a backup. Existing 1.1 call numbers are preserved. Upgraded libraries require 1.2; use the pre-upgrade backup to return to an older application.
+
+### 简体中文
+
+- 新增 CLC、DDC、LCC 图书分类。自动模式下简体中文默认 CLC，其余语言默认 DDC，每个书库保存自己的规则。
+- 每本书保留自身分类体系及各体系分类号。切换语言不改写已有书目或当前草稿，检索、详情、分类字典和 CSV 导出适配多体系。
+- 新规则可以仅用于新录入，也可以在查看涉及册数和新旧编号后同步已有书目。同步前完整备份，编号变更记录可导出；杂志编号与副本后缀保留。
+- Open Library 查询读取明确提供的 DDC、LCC 分类号；缺少时保留为待分类，不猜测跨体系映射，不附带完整 DDC、LCC 类目表。
+- 数据库升级至结构版本 3，升级前自动备份，保留 1.1 馆藏编号。升级后的书库须使用 1.2，回退旧版时请使用升级前的备份。
+
 ## v1.1 — 2026-10-30
 
 ### English

@@ -315,7 +315,7 @@ def test_location_menu_keyboard_does_not_save_or_reset_draft(window, application
 
 def test_version_and_author_are_explicitly_user_requested(window):
     from app import __version__, __author__
-    assert __version__ == "1.1"
+    assert __version__ == "1.2"
     assert __author__ == "Gimi.H with Chatgpt model"
-    assert window.windowTitle().endswith("1.1")
+    assert window.windowTitle().endswith(__version__)
     assert "Gimi.H with Chatgpt model" in window.settings_page.about.text()

@@ -12,7 +12,8 @@ from . import APP_NAME, __version__
 from .imaging import decode_image
 from .widgets import row
 from .pages import EntryPage, CatalogPage, SettingsPage
-from .dialogs import CandidateDialog, ClassificationDialog, CoverDialog
+from .dialogs import CandidateDialog, ClassificationDialog, ClassificationPolicyDialog, CoverDialog
+from .classification import resolve_system, system_label, FIELDS
 from .workers import CameraWorker, LookupWorker
 from .chrome import TitleBar, app_icon
 from .i18n import set_language, translate_tree, translated, tr, default_language, LANGUAGES
@@ -154,12 +155,63 @@ class MainWindow(QMainWindow):
             return False
         self.cancel_lookup(silent=True)
         self.language = language
+        if self.db:
+            self.db.language = language
         set_language(language)
         self.setWindowTitle(tr(APP_NAME) + " " + __version__)
         translate_tree(self)
+        if not self.has_classification_draft():
+            self.entry.select_classification_system(self.default_classification_system())
+        self.entry.refresh_classification_ui()
+        self.settings_page.refresh_classification()
         self.catalog.refresh()
         self.search_page.refresh()
         return True
+
+    def default_classification_system(self):
+        return resolve_system(self.db.classification_mode if self.db else "auto", self.language)
+
+    def has_classification_draft(self):
+        return bool(self.entry.book_id is not None or self.entry.dirty or
+                    any(self.entry.text(key) for key in self.entry.fields) or self.entry.cover_blob)
+
+    def apply_classification_policy(self):
+        if not self.db:
+            return
+        mode = self.settings_page.classification_mode.currentData()
+        try:
+            target = resolve_system(mode, self.language)
+            plan = self.db.classification_plan(target)
+            dialog = ClassificationPolicyDialog(target, plan, self)
+            accepted = dialog.exec() == QDialog.DialogCode.Accepted
+            synchronize = dialog.synchronize.isChecked()
+            dialog.deleteLater()
+            if not accepted:
+                return
+            if synchronize and plan and not self.discard_draft():
+                return
+            result = self.db.set_classification_policy(mode, self.language, synchronize=synchronize)
+            if (synchronize and plan) or not self.has_classification_draft():
+                self.reset_entry()
+            self.refresh_library()
+            message = tr('分类规则已保存；已有馆藏仅在选择同步时修改。')
+            if result['backup']:
+                message += '\n' + tr('已同步 {books} 种书目、{copies} 册；原编号对照可导出。\n备份：{path}',
+                    books=result['books'], copies=result['copies'], path=result['backup'])
+            QMessageBox.information(self, tr('分类规则'), message)
+        except Exception as exc:
+            self.error(exc)
+
+    def export_numbering_history(self):
+        if not self.db:
+            return
+        path, _ = QFileDialog.getSaveFileName(self, tr('导出编号变更记录'), 'classification-history.csv', 'CSV (*.csv)')
+        if path:
+            try:
+                self.db.export_numbering_history(path)
+                self.notice(tr('编号变更记录已导出：{path}', path=path))
+            except Exception as exc:
+                self.error(exc)
 
     def keep_job(self, job):
         self.jobs.add(job)
@@ -201,6 +253,7 @@ class MainWindow(QMainWindow):
             books, copies = self.db.stats()
             self.counter.setText(tr('{v0} 种书目  ·  {v1} 册馆藏  ·  本地保存', v0=(books), v1=(copies)))
             self.settings_page.path.setText(str(self.db.path))
+        self.settings_page.refresh_classification()
         self.catalog.refresh()
         self.search_page.refresh()
 
@@ -220,7 +273,7 @@ class MainWindow(QMainWindow):
         if not lock.tryLock(0):
             raise ValueError(tr('数据库已由另一个窗口打开，或所在目录不可写'))
         try:
-            replacement = LibraryDB(path, create=create)
+            replacement = LibraryDB(path, create=create, language=self.language)
         except Exception:
             lock.unlock()
             raise
@@ -244,7 +297,7 @@ class MainWindow(QMainWindow):
         self.refresh_library()
         self.notice(tr('当前数据库：{v0}', v0=(path)))
         if self.db.migration_backup:
-            self.notice(tr('编号已升级为分类内序号，升级前备份：{path}', path=self.db.migration_backup))
+            self.notice(tr('数据库已升级至 1.2；升级前备份：{path}', path=self.db.migration_backup))
 
     def open_database(self):
         path, _ = QFileDialog.getOpenFileName(self, tr('打开藏书数据库'), "", tr('SQLite (*.sqlite3 *.db *.sqlite);;所有文件 (*)'))
@@ -298,10 +351,11 @@ class MainWindow(QMainWindow):
         if not self.db:
             self.error(tr('请先选择数据库'))
             return
-        path, _ = QFileDialog.getOpenFileName(self, tr('导入分类字典'), "", "CSV (*.csv)")
+        system = self.default_classification_system()
+        path, _ = QFileDialog.getOpenFileName(self, tr('导入分类字典') + ' · ' + system_label(system), "", "CSV (*.csv)")
         if path:
             try:
-                count = self.db.import_classifications(path)
+                count = self.db.import_classifications(path, system=system)
                 self.update_classification_hint()
                 self.notice(tr('已导入 {v0} 个分类条目', v0=(count)))
             except Exception as exc:
@@ -314,7 +368,7 @@ class MainWindow(QMainWindow):
         if not code:
             label = tr('待分类 · 保存后生成临时编号')
         else:
-            match = next((r for r in self.db.classifications(code) if r["code"] == code), None) if self.db else None
+            match = next((r for r in self.db.classifications(code, system=self.entry.active_system) if r["code"] == code), None) if self.db else None
             label = match["name"] if match else tr('名称未收录 · 此分类号仍可保存')
         self.entry.clc_hint.setText(label)
 
@@ -322,10 +376,10 @@ class MainWindow(QMainWindow):
         if not self.db:
             self.error(tr('请先选择数据库'))
             return
-        dialog = ClassificationDialog(self.db, self)
+        dialog = ClassificationDialog(self.db, self, system=self.entry.active_system)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             self.entry.set_text("clc_code", dialog.selected_code)
-            self.entry.dirty.add("clc_code")
+            self.entry.mark_dirty("clc_code")
             self.update_classification_hint()
         dialog.deleteLater()
 
@@ -533,7 +587,7 @@ class MainWindow(QMainWindow):
             return
         self.entry.fill(selected)
         codes = selected.get("source_info", {}).get("clc_candidates", [])
-        if len(codes) > 1 and "clc_code" not in self.entry.dirty:
+        if self.entry.active_system == 'clc' and len(codes) > 1 and "clc_code" not in self.entry.dirty:
             code, ok = QInputDialog.getItem(self, tr('选择主分类号'), tr('来源提供多个中图分类号，请选一个生成馆藏编码：'), codes, 0, False)
             if ok and token == self.request_token:
                 self.entry.set_text("clc_code", code)
@@ -620,15 +674,18 @@ class MainWindow(QMainWindow):
                         book_id = selected["id"]
                         existing = self.db.book(book_id)
                         # Reuse unedited shared fields instead of blanking metadata on a duplicate.
-                        for key in ("isbn", "title", "authors", "translators", "publisher", "clc_code", "summary", "cover_blob", "cover_mime", "reference_pubdate"):
+                        for key in ("isbn", "title", "authors", "translators", "publisher", "summary", "cover_blob", "cover_mime", "reference_pubdate"):
                             if key not in self.entry.dirty:
+                                data[key] = existing[key]
+                        if not self.entry.dirty.intersection(('clc_code', 'classification_system')):
+                            for key in ('classification_system', *FIELDS.values()):
                                 data[key] = existing[key]
                         merged_info = dict(existing["source_info"])
                         merged_info.update(data["source_info"])
                         data["source_info"] = merged_info
             if book_id is not None:
                 existing = self.db.book(book_id)
-                shared = ("isbn", "title", "authors", "translators", "publisher", "clc_code", "summary", "cover_blob")
+                shared = ("isbn", "title", "authors", "translators", "publisher", "clc_code", "ddc_code", "lcc_code", "classification_system", "summary", "cover_blob")
                 if data["media_type"] == "magazine":
                     shared += ("issn", "issue_year", "issue_number")
                 changed = [k for k in shared if data.get(k) != existing.get(k)]
@@ -636,7 +693,7 @@ class MainWindow(QMainWindow):
                     before = self.db.code_for(book_id)
                     after = self.db.preview_code(data, book_id)
                     message = tr('将更新此书目所有副本共享的资料与封面。')
-                    if "clc_code" in changed:
+                    if before != after:
                         message += tr('\n基本编码：{v0} → {v1}\n所有副本的后缀不变。', v0=(before), v1=(after))
                     if QMessageBox.question(self, tr('确认书目变更'), message + tr('\n继续保存？'), QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.Yes) != QMessageBox.StandardButton.Yes:
                         return

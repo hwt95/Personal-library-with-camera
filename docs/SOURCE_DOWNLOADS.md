@@ -1,8 +1,8 @@
 # Corresponding source downloads · 第三方对应源码下载
 
-These are the exact upstream sources for the dynamically linked libraries shipped with version 1.1. They are available separately and are not needed for everyday use. Original terms and replacement instructions accompany the application.
+These are the exact upstream sources for the dynamically linked libraries shipped with version 1.2. They are available separately and are not needed for everyday use. Original terms and replacement instructions accompany the application.
 
-这些链接提供 1.1 随附动态库的对应版本源码，日常使用不需要另外下载。原始许可和替换说明随程序提供。
+这些链接提供 1.2 随附动态库的对应版本源码，日常使用不需要另外下载。原始许可和替换说明随程序提供。
 
 | Component / 组件 | Version / 版本 | Download / 下载 | SHA-256 |
 | --- | --- | --- | --- |
@@ -13,4 +13,4 @@ These are the exact upstream sources for the dynamically linked libraries shippe
 | qtimageformats | 6.12.0 | [qtimageformats-6.12.0.tar.xz](https://download.qt.io/official_releases/qt/6.12/6.12.0/submodules/qtimageformats-everywhere-src-6.12.0.tar.xz) | `0943132b5db8de6b6a7f1d162682173e8763c7ed94e80fd39113292845f67762` |
 | qtsvg | 6.12.0 | [qtsvg-6.12.0.tar.xz](https://download.qt.io/official_releases/qt/6.12/6.12.0/submodules/qtsvg-everywhere-src-6.12.0.tar.xz) | `e4ab39534ec97987b1b9b60ef7f4d3253d5912a69f8c713a01753174a4029331` |
 
-[Library replacement and redistribution / 库替换与再分发说明](https://github.com/hwt95/Personal-library-with-camera/blob/v1.1/deps/compliance/SOURCE_CODE.md)
+[Library replacement and redistribution / 库替换与再分发说明](https://github.com/hwt95/Personal-library-with-camera/blob/v1.2/deps/compliance/SOURCE_CODE.md)

@@ -102,6 +102,8 @@ class Metadata:
     translators: str = ""
     publisher: str = ""
     clc_code: str = ""
+    ddc_code: str = ""
+    lcc_code: str = ""
     summary: str = ""
     reference_pubdate: str = ""
     cover_blob: bytes | None = None
@@ -112,7 +114,8 @@ class Metadata:
 
 BOOK_FIELDS = ("isbn", "title", "authors", "translators", "publisher", "clc_code",
                "summary", "reference_pubdate", "cover_blob", "cover_mime", "source_info",
-               "media_type", "issn", "issue_year", "issue_number", "barcode", "barcode_addon")
+               "media_type", "issn", "issue_year", "issue_number", "barcode", "barcode_addon",
+               "classification_system", "ddc_code", "lcc_code")
 
 
 class ScanGate:

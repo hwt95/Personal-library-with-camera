@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 import httpx
 
 from ..domain import Metadata, normalize_isbn
+from ..classification import metadata_codes
 
 NLC_URL = "http://opac.nlc.cn/F"
 AGENT = "PersonalLibrary/1.0 (desktop personal catalog; sequential ISBN lookup)"
@@ -171,7 +172,9 @@ async def openlibrary(client, isbn):
         return []
     info = {"provider": "Open Library", "url": "https://openlibrary.org" + edition.get("key", "")}
     data = Metadata(isbn=isbn, title=edition["title"], publisher="; ".join(edition.get("publishers", [])),
-                    reference_pubdate=edition.get("publish_date", ""), summary=text_value(edition.get("description")), source_info=info)
+                    reference_pubdate=edition.get("publish_date", ""), summary=text_value(edition.get("description")), source_info=info,
+                    **metadata_codes(edition))
+    info["classification_candidates"] = {key: edition.get(key, []) for key in ("dewey_decimal_class", "lc_classifications")}
     # Optional enrichment must never discard a successfully fetched edition.
     try:
         contributors = edition.get("authors", [])
@@ -179,6 +182,9 @@ async def openlibrary(client, isbn):
             work = await ol_get(client, "https://openlibrary.org" + edition["works"][0]["key"] + ".json")
             if work:
                 data.summary = data.summary or text_value(work.get("description"))
+                for key, value in metadata_codes(work).items():
+                    if not getattr(data, key):
+                        setattr(data, key, value)
                 contributors = contributors or [a.get("author", a) for a in work.get("authors", [])]
         authors = []
         for author in contributors[:8]:
