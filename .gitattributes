@@ -11,3 +11,4 @@
 *.exe binary
 *.dll binary
 *.pyd binary
+*.gz binary

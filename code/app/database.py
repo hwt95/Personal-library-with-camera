@@ -7,6 +7,7 @@ from datetime import datetime
 
 from .domain import BOOK_FIELDS, READING_STATES, accession, normalize_isbn, normalize_issn, validate_year
 from .classification import SYSTEMS, FIELDS, normalize_code, active_code, number_scope, resolve_system
+from .classification_dictionary import bundled_clc, term_description
 
 APP_ID = 0x504C4942
 SCHEMA_VERSION = 3
@@ -424,13 +425,33 @@ class LibraryDB:
 
     def classifications(self, query="", system="clc"):
         resolve_system(system)
-        if system != "clc":
-            return [dict(r) for r in self.conn.execute(
-                "SELECT * FROM classification_terms WHERE system=? AND (code LIKE ? ESCAPE '\\' OR name LIKE ? ESCAPE '\\') ORDER BY code",
-                (system, "%" + like(query) + "%", "%" + like(query) + "%"))]
-        return [dict(r) for r in self.conn.execute(
-            "SELECT * FROM classifications WHERE code LIKE ? ESCAPE '\\' OR name LIKE ? ESCAPE '\\' ORDER BY code",
-            ("%" + like(query) + "%", "%" + like(query) + "%"))]
+        query = query.casefold()
+        return [dict(item) for item in self.classification_index(system).values()
+                if not query or query in item['code'].casefold() or query in item['name'].casefold()]
+
+    def classification_index(self, system='clc'):
+        resolve_system(system)
+        revision = self.conn.total_changes
+        cache = getattr(self, '_classification_indexes', {})
+        if system in cache and cache[system][0] == revision:
+            return cache[system][1]
+        if system == 'clc':
+            index = dict(bundled_clc())
+            records = self.conn.execute('SELECT * FROM classifications')
+        else:
+            index = {}
+            records = self.conn.execute('SELECT * FROM classification_terms WHERE system=?', (system,))
+        for record in records:
+            item = dict(record)
+            if item['code'] not in index or item['source'] != '中图法基本大类简表':
+                index[item['code']] = item
+        index = dict(sorted(index.items()))
+        cache[system] = (revision, index)
+        self._classification_indexes = cache
+        return index
+
+    def classification_description(self, code, system='clc'):
+        return term_description(self.classification_index(system), code, system)
 
     def import_classifications(self, path, system="clc"):
         resolve_system(system)

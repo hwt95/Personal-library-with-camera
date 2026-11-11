@@ -1,0 +1,594 @@
+{
+  "revision": "2026-11-11",
+  "base_sha256": "c75a01be404a0aaf006f183f988d524cfc869115e5ba2b194f1110e033d8bd90",
+  "payload_sha256": "eaaf7280610ee34008d3c418a2b9a5b215fe5abbc4d5ced4274755048a53c6fb",
+  "base_entries": 45785,
+  "added_entries": 2319,
+  "total_entries": 48104,
+  "chapter_rows": {
+    "A": 142,
+    "B": 746,
+    "C": 209,
+    "D": 858,
+    "E": 432,
+    "F": 1582,
+    "G": 1422,
+    "H": 489,
+    "I": 723,
+    "J": 131,
+    "K": 170,
+    "N": 37,
+    "O": 0,
+    "P": 86,
+    "Q": 96,
+    "R": 149,
+    "S": 87,
+    "T": 0,
+    "U": 132,
+    "V": 26,
+    "X": 149,
+    "Z": 96,
+    "O1": 239,
+    "O2": 92,
+    "O3": 168,
+    "O5": 173,
+    "O6": 1018,
+    "O7": 58,
+    "T-general": 21,
+    "TB": 310,
+    "TD": 684,
+    "TE": 65,
+    "TG": 70,
+    "TH": 31,
+    "TJ": 68,
+    "TK": 56,
+    "TL": 68,
+    "TM": 30,
+    "TP": 101,
+    "TQ": 0,
+    "TU": 34,
+    "TV": 535,
+    "TQ0": 317,
+    "TQ1": 1064,
+    "TQ2": 461,
+    "TQ3": 523,
+    "TQ4": 606,
+    "TQ5": 362,
+    "TQ6": 404,
+    "TQ9": 66,
+    "I-earlier": 176
+  },
+  "auxiliary_counts": {
+    "fb1": 74,
+    "fb2": 394,
+    "fb3": 49,
+    "fb4": 33,
+    "fb5": 57,
+    "fb6": 440,
+    "fb7": 59,
+    "fb8": 105
+  },
+  "unavailable_wikipedia_subpages": [
+    "O4",
+    "TF",
+    "TN",
+    "TS"
+  ],
+  "audit_counts": {
+    "existing_name_preserved": 535,
+    "marked_or_withdrawn_branch": 404,
+    "marked_range_or_invalid": 4,
+    "conflicting_source_names": 4
+  },
+  "sources": {
+    "wiki-A": {
+      "title": "维基百科：中国图书馆分类法 (A)",
+      "url": "https://web.archive.org/web/20220829031632/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_%28A%29",
+      "revision_id": "63354789",
+      "sha256": "16b020107876242bd6de7854f18e071cdf824754aa6592bd71259343377d2351",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-B": {
+      "title": "维基百科：中国图书馆分类法 (B)",
+      "url": "https://web.archive.org/web/20201116180641/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(B)",
+      "revision_id": "58482057",
+      "sha256": "f92c1d38ac8487f3a0f15f653d5e0df9397028d39a4a9fb872794b5f7bc400c1",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-C": {
+      "title": "维基百科：中国图书馆分类法 (C)",
+      "url": "https://web.archive.org/web/20220710080951/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(C)",
+      "revision_id": "67416005",
+      "sha256": "a606a5ed4b229611a5aa1e1a46b95fa30b7be3fd5d7951ae89d9c10cdf8dfebd",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-D": {
+      "title": "维基百科：中国图书馆分类法 (D)",
+      "url": "https://web.archive.org/web/20220710081006/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(D)",
+      "revision_id": "63354829",
+      "sha256": "ce6e1ded52602f77c9679af1c07dd803b7bb9119567e256ce439edf622bf252e",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-E": {
+      "title": "维基百科：中国图书馆分类法 (E)",
+      "url": "https://web.archive.org/web/20220710081004/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(E)",
+      "revision_id": "63354884",
+      "sha256": "53779fcef9b93c3fcd386266859d80039e1f00c7a2285be19885280c54580c60",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-F": {
+      "title": "维基百科：中国图书馆分类法 (F)",
+      "url": "https://web.archive.org/web/20201116180651/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(F)",
+      "revision_id": "11434058",
+      "sha256": "3c59956936c192681b273c49c6bfca5c018f7f25b81ddc4a4941bf38bf226a23",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-G": {
+      "title": "维基百科：中国图书馆分类法 (G)",
+      "url": "https://web.archive.org/web/20220810062916/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(G)",
+      "revision_id": "63365583",
+      "sha256": "909ff09e390cfe6e8cf075e5853d1d5b12876d952f03265f5edabdcddcbf7001",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-H": {
+      "title": "维基百科：中国图书馆分类法 (H)",
+      "url": "https://web.archive.org/web/20220829073139/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_%28H%29",
+      "revision_id": "63413815",
+      "sha256": "2e466df7c3474ee394000e2f84db53871e3a5ce16460de97ec537d4444109e68",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-I": {
+      "title": "维基百科：中国图书馆分类法 (I)",
+      "url": "https://web.archive.org/web/20220730151209/https://zh.wikipedia.org/wiki/中国图书馆分类法_(I)",
+      "revision_id": "71803984",
+      "sha256": "eba9603bd877a3d4b3e348a42e1f6243eb4bdd81afac0aa833ba9be96c146e7d",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-J": {
+      "title": "维基百科：中国图书馆分类法 (J)",
+      "url": "https://web.archive.org/web/20201116180704/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(J)",
+      "revision_id": "16425888",
+      "sha256": "f0f04186896649dd538b7e70f7cb2f42317d5d5b363e97e8d61efef92c8920ea",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-K": {
+      "title": "维基百科：中国图书馆分类法 (K)",
+      "url": "https://web.archive.org/web/20220710080951/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(K)",
+      "revision_id": "63365635",
+      "sha256": "03f36cf924010d478019d5be1bfb7b56d112771939257d4330896e31f2e87c15",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-N": {
+      "title": "维基百科：中国图书馆分类法 (N)",
+      "url": "https://web.archive.org/web/20220515210529/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(N)",
+      "revision_id": "63365641",
+      "sha256": "a722fe92937973fc740a5061ea05e3883e930dd4b61b0db0872e44022645524f",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-O": {
+      "title": "维基百科：中国图书馆分类法 (O)",
+      "url": "https://web.archive.org/web/20220830033929/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_%28O%29",
+      "revision_id": "63365647",
+      "sha256": "27f52ea87176bf27b4b0839f4ea62d4b15496e0c0d31789f1c885a155baa6b7c",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-P": {
+      "title": "维基百科：中国图书馆分类法 (P)",
+      "url": "https://web.archive.org/web/20220710081009/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(P)",
+      "revision_id": "63365728",
+      "sha256": "201c68b62e4eb3c67048441f3faa110063e84757a33e300a71b334f0becf949e",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-Q": {
+      "title": "维基百科：中国图书馆分类法 (Q)",
+      "url": "https://web.archive.org/web/20220710080951/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(Q)",
+      "revision_id": "63413819",
+      "sha256": "141a2cb9c823223209ce9f7682680311cfcaf7cd48671c1b2b72581346b4df8c",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-R": {
+      "title": "维基百科：中国图书馆分类法 (R)",
+      "url": "https://web.archive.org/web/20220710080958/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(R)",
+      "revision_id": "63413822",
+      "sha256": "cdebc99a7ea3b766cec3ea8d958665a44a24a9783dc2ba39a2e3afcfae2d95ce",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-S": {
+      "title": "维基百科：中国图书馆分类法 (S)",
+      "url": "https://web.archive.org/web/20201116180720/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(S)",
+      "revision_id": "10167121",
+      "sha256": "8af3fa9685cc724ea469abc592677f3d1dc730e4be1955b125c1f5e84cd2343d",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-T": {
+      "title": "维基百科：中国图书馆分类法 (T)",
+      "url": "https://web.archive.org/web/20220829032018/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_%28T%29",
+      "revision_id": "63374753",
+      "sha256": "b6663536bc5cfb55922a726a274a98630655881b8c81b2143c478b0d6ef1d84e",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-U": {
+      "title": "维基百科：中国图书馆分类法 (U)",
+      "url": "https://web.archive.org/web/20220710080951/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_%28U%29",
+      "revision_id": "63365766",
+      "sha256": "f2307f39875f9589e0cbe4be3de377b5621c24e36dcfdde5fa1f0797dfc73df2",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-V": {
+      "title": "维基百科：中国图书馆分类法 (V)",
+      "url": "https://web.archive.org/web/20201116180744/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_%28V%29",
+      "revision_id": "10167314",
+      "sha256": "6d0a036eb9eebc849503b79ae5a52aabc8bdd206c7c735d137f3bc144217460f",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-X": {
+      "title": "维基百科：中国图书馆分类法 (X)",
+      "url": "https://web.archive.org/web/20220405060416/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_%28X%29",
+      "revision_id": "63413826",
+      "sha256": "ece0395fe780647cfe71b8616ea323fb62b94737d5b9d8ef36ae461a83fbbe3e",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-Z": {
+      "title": "维基百科：中国图书馆分类法 (Z)",
+      "url": "https://web.archive.org/web/20201116180751/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_%28Z%29",
+      "revision_id": "10167318",
+      "sha256": "7332f3e5c4c5fdbc6af3fe0208da5f0f0972912cb3f1b4ea3649079d8b511898",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-O1": {
+      "title": "维基百科：中国图书馆分类法 (O1)",
+      "url": "https://web.archive.org/web/20220830033928/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_%28O1%29",
+      "revision_id": "68714756",
+      "sha256": "b8d93a45fd8013a383ba2a15b5e945563fa3ce165a11dead86504c2910e444f7",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-O2": {
+      "title": "维基百科：中国图书馆分类法 (O2)",
+      "url": "https://web.archive.org/web/20220830033928/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_%28O2%29",
+      "revision_id": "69047936",
+      "sha256": "2cacc4cc8236dac364af80a404d234f12af7b3d3010665b668515935ccc77b4e",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-O3": {
+      "title": "维基百科：中国图书馆分类法 (O3)",
+      "url": "https://web.archive.org/web/20171102163104/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(O3)",
+      "revision_id": "10167138",
+      "sha256": "c1ffa13e47bda1a76499d013c8708345815b70fa67daa7da1c381ca4c8e6cc14",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-O5": {
+      "title": "维基百科：中国图书馆分类法 (O5)",
+      "url": "https://web.archive.org/web/20171102163108/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(O5)",
+      "revision_id": "10167143",
+      "sha256": "3ade934242957818b46f317d7461fe7f8ae801f412224bfa6fa6f204e4463de4",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-O6": {
+      "title": "维基百科：中国图书馆分类法 (O6)",
+      "url": "https://web.archive.org/web/20220706204135/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(O6)",
+      "revision_id": "72523062",
+      "sha256": "e8e00c3cbc128ce3c1e93ca623a0641261aa887120c6a4031df5bd1646697ae2",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-O7": {
+      "title": "维基百科：中国图书馆分类法 (O7)",
+      "url": "https://web.archive.org/web/20171112061331/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(O7)",
+      "revision_id": "10167149",
+      "sha256": "87aa179f2d71ccb4d09d9909ff5640a3cba1beca340f97e1c04a1e7dc9ef68d6",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-T-general": {
+      "title": "维基百科：中国图书馆分类法 (T-general)",
+      "url": "https://web.archive.org/web/20220710080943/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_%28T%2A%29",
+      "revision_id": "72594978",
+      "sha256": "312c7f9035dad89a0abe206c673967aec93e490e22bef3929a47d98793eba0e1",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-TB": {
+      "title": "维基百科：中国图书馆分类法 (TB)",
+      "url": "https://web.archive.org/web/20220710080951/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_%28TB%29",
+      "revision_id": "63365830",
+      "sha256": "60ab9774c02840b5f8d6f12f0b903c49086fce701f806036edf313b3d0831e7f",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-TD": {
+      "title": "维基百科：中国图书馆分类法 (TD)",
+      "url": "https://web.archive.org/web/20220710080951/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_%28TD%29",
+      "revision_id": "69084614",
+      "sha256": "ef7777456ce9c62d03145f18a87a4f5c305a9557181a6a0ef7576d5a43081d60",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-TE": {
+      "title": "维基百科：中国图书馆分类法 (TE)",
+      "url": "https://web.archive.org/web/20220710081006/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(TE)",
+      "revision_id": "63413831",
+      "sha256": "366cc44b459f1f006d287b56b2f0c1e0c9bb9b7d7f282346b8f9172d39c8a8a1",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-TG": {
+      "title": "维基百科：中国图书馆分类法 (TG)",
+      "url": "https://web.archive.org/web/20220710080952/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_%28TG%29",
+      "revision_id": "63366439",
+      "sha256": "adbd5ea223b3083ca5e077ff8757b01a6138b724f4121acd3f1b3d4f027c4e04",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-TH": {
+      "title": "维基百科：中国图书馆分类法 (TH)",
+      "url": "https://web.archive.org/web/20220710081005/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_%28TH%29",
+      "revision_id": "63366442",
+      "sha256": "b747994142b8b46bf5448ebe0306f8e3293bcad7e69bc8bdd3c77d74d250bc0a",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-TJ": {
+      "title": "维基百科：中国图书馆分类法 (TJ)",
+      "url": "https://web.archive.org/web/20220830074950/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_%28TJ%29",
+      "revision_id": "63366496",
+      "sha256": "9d8efc3143942bf0d2de1bd04a38e6a233f8907edcbbf45053e2dbd08e8f8335",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-TK": {
+      "title": "维基百科：中国图书馆分类法 (TK)",
+      "url": "https://web.archive.org/web/20220710080952/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(TK)",
+      "revision_id": "63366507",
+      "sha256": "1052c7b295831a733bfa50cf4d862613ab4be0944231fa5525b9b5ce897a84e9",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-TL": {
+      "title": "维基百科：中国图书馆分类法 (TL)",
+      "url": "https://web.archive.org/web/20220710080951/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_%28TL%29",
+      "revision_id": "68134318",
+      "sha256": "26dfd9016e390360410749fb0e85f50b1e7aa5350b47574af6dea1507315019a",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-TM": {
+      "title": "维基百科：中国图书馆分类法 (TM)",
+      "url": "https://web.archive.org/web/20220710081015/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_%28TM%29",
+      "revision_id": "63366523",
+      "sha256": "7416a1cb38dd96f2214a09e0d67417d999ae254337e409d4222eae2e258659ff",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-TP": {
+      "title": "维基百科：中国图书馆分类法 (TP)",
+      "url": "https://web.archive.org/web/20220829032044/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_%28TP%29",
+      "revision_id": "63366557",
+      "sha256": "ceb642b4e23de67659ffeebcbbbb3f643a24f6f8e56d99ef666517e177a66c5b",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-TQ": {
+      "title": "维基百科：中国图书馆分类法 (TQ)",
+      "url": "https://web.archive.org/web/20220710080959/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_%28TQ%29",
+      "revision_id": "63366587",
+      "sha256": "6c932c95f1c436b5be6d04d594bf188c8182c7bf3706e79048d61fc3cbfff383",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-TU": {
+      "title": "维基百科：中国图书馆分类法 (TU)",
+      "url": "https://web.archive.org/web/20220830074950/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_%28TU%29",
+      "revision_id": "63366573",
+      "sha256": "b72a371d7493bb7a9a515d2d375216075028f3e2112c0db167657dd5ac4e17a5",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-TV": {
+      "title": "维基百科：中国图书馆分类法 (TV)",
+      "url": "https://web.archive.org/web/20190724080504/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(TV)",
+      "revision_id": "12701293",
+      "sha256": "9434b0de489ad5978cea4dec3206518d4ce025485b6a15672ffffd20dfec3a2e",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-TQ0": {
+      "title": "维基百科：中国图书馆分类法 (TQ0)",
+      "url": "https://web.archive.org/web/20220830074957/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(TQ0)",
+      "revision_id": "63413835",
+      "sha256": "5a70269b219cb67d670557266652812f88e71614dfea59989b04dc34f5d3f15b",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-TQ1": {
+      "title": "维基百科：中国图书馆分类法 (TQ1)",
+      "url": "https://web.archive.org/web/20171112061349/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(TQ1)",
+      "revision_id": "10167273",
+      "sha256": "4c90a9a1192f99e88275664fd71debf4911c649bc8bb7713b6385d0cfabcef34",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-TQ2": {
+      "title": "维基百科：中国图书馆分类法 (TQ2)",
+      "url": "https://web.archive.org/web/20171102163117/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(TQ2)",
+      "revision_id": "10167275",
+      "sha256": "898c3c766bbf2145af00cf1b113644a9ac4475789794fe904f65e4ecb5a1ad7d",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-TQ3": {
+      "title": "维基百科：中国图书馆分类法 (TQ3)",
+      "url": "https://web.archive.org/web/20220830074950/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(TQ3)",
+      "revision_id": "70539776",
+      "sha256": "b14fdad13eff1cb76893c41c2b5b2971e086a2b92aacd8dfc7f0581f8ece1d8d",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-TQ4": {
+      "title": "维基百科：中国图书馆分类法 (TQ4)",
+      "url": "https://web.archive.org/web/20220830074954/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(TQ4)",
+      "revision_id": "63366772",
+      "sha256": "efea2ed72c9f2e002d3066f4f85b407cdfb7f4fe93e05f90ea2aebdf923d27d8",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-TQ5": {
+      "title": "维基百科：中国图书馆分类法 (TQ5)",
+      "url": "https://web.archive.org/web/20220830074950/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(TQ5)",
+      "revision_id": "63366782",
+      "sha256": "da3b36a06bc491d5ad2934f8941ba8e6c9ab0163319c710ec8ce38260cf668d9",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-TQ6": {
+      "title": "维基百科：中国图书馆分类法 (TQ6)",
+      "url": "https://web.archive.org/web/20171102163121/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(TQ6)",
+      "revision_id": "16304624",
+      "sha256": "a07836f9c122f29a85418f73616786bd345a3610cf2a904f7fca4e77b26f3a7b",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-TQ9": {
+      "title": "维基百科：中国图书馆分类法 (TQ9)",
+      "url": "https://web.archive.org/web/20171112061352/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(TQ9)",
+      "revision_id": "10167290",
+      "sha256": "e80a21abfc5f11f556dd793a1071fa84f8a55951590b8c3f2bd528309f0f60ac",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "wiki-I-earlier": {
+      "title": "维基百科：中国图书馆分类法 (I-earlier)",
+      "url": "https://web.archive.org/web/20190702112918/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_%28I%29",
+      "revision_id": "42670869",
+      "sha256": "901419cd9777381a7d8a6289cf70676a93439ff89e662f603c10da8b5c20a013",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "szu-fb1": {
+      "title": "深圳大学图书馆 CLSS：总论复分表",
+      "url": "https://www.lib.szu.edu.cn/nkosapp/ProjectForCLC/clcmain.jsp?lang=chi&tag=1",
+      "edition": "第4版",
+      "sha256": "f3891c0155b48e45da57f296f32dd5800c45f9a17c9061f4f5ba363ab9809a76",
+      "attribution": "深圳大学图书馆 NKOS 研究室；中国图书馆分类法",
+      "license": "网站声明保留权利；数据权利不由本项目软件许可覆盖"
+    },
+    "szu-fb2": {
+      "title": "深圳大学图书馆 CLSS：世界地区表",
+      "url": "https://www.lib.szu.edu.cn/nkosapp/ProjectForCLC/clcmain.jsp?lang=chi&tag=2",
+      "edition": "第4版",
+      "sha256": "be949453546357fd59fafa1d407c6d76e4256a20529692a1d9550d07dd16c6e0",
+      "attribution": "深圳大学图书馆 NKOS 研究室；中国图书馆分类法",
+      "license": "网站声明保留权利；数据权利不由本项目软件许可覆盖"
+    },
+    "szu-fb3": {
+      "title": "深圳大学图书馆 CLSS：中国地区表",
+      "url": "https://www.lib.szu.edu.cn/nkosapp/ProjectForCLC/clcmain.jsp?lang=chi&tag=3",
+      "edition": "第4版",
+      "sha256": "7e3b8f4e1b7225c4cf99b1fa8b29a73762628c49449084608bc6b56ddc74aa21",
+      "attribution": "深圳大学图书馆 NKOS 研究室；中国图书馆分类法",
+      "license": "网站声明保留权利；数据权利不由本项目软件许可覆盖"
+    },
+    "szu-fb4": {
+      "title": "深圳大学图书馆 CLSS：国际时代表",
+      "url": "https://www.lib.szu.edu.cn/nkosapp/ProjectForCLC/clcmain.jsp?lang=chi&tag=4",
+      "edition": "第4版",
+      "sha256": "5a81969abe3ba0016c789f41ca69fe0c56662d6652c55f8208d75204b8eed14f",
+      "attribution": "深圳大学图书馆 NKOS 研究室；中国图书馆分类法",
+      "license": "网站声明保留权利；数据权利不由本项目软件许可覆盖"
+    },
+    "szu-fb5": {
+      "title": "深圳大学图书馆 CLSS：中国时代表",
+      "url": "https://www.lib.szu.edu.cn/nkosapp/ProjectForCLC/clcmain.jsp?lang=chi&tag=5",
+      "edition": "第4版",
+      "sha256": "2f960241f29de1068d0a6fc2735119f0da80790a4a34ef99f6c472ad74b6c901",
+      "attribution": "深圳大学图书馆 NKOS 研究室；中国图书馆分类法",
+      "license": "网站声明保留权利；数据权利不由本项目软件许可覆盖"
+    },
+    "szu-fb6": {
+      "title": "深圳大学图书馆 CLSS：世界种族与民族表",
+      "url": "https://www.lib.szu.edu.cn/nkosapp/ProjectForCLC/clcmain.jsp?lang=chi&tag=6",
+      "edition": "第4版",
+      "sha256": "2fd1a768f74252b4a7cf6ced4bf13d56c9f6ded35b366f56a52093a4d9a06399",
+      "attribution": "深圳大学图书馆 NKOS 研究室；中国图书馆分类法",
+      "license": "网站声明保留权利；数据权利不由本项目软件许可覆盖"
+    },
+    "szu-fb7": {
+      "title": "深圳大学图书馆 CLSS：中国民族表",
+      "url": "https://www.lib.szu.edu.cn/nkosapp/ProjectForCLC/clcmain.jsp?lang=chi&tag=7",
+      "edition": "第4版",
+      "sha256": "9cd2b3607dfa8469ab2cc1cfe67832f1f8ffb232678d0d05385735ccfa577d82",
+      "attribution": "深圳大学图书馆 NKOS 研究室；中国图书馆分类法",
+      "license": "网站声明保留权利；数据权利不由本项目软件许可覆盖"
+    },
+    "szu-fb8": {
+      "title": "深圳大学图书馆 CLSS：通用时间、地点表",
+      "url": "https://www.lib.szu.edu.cn/nkosapp/ProjectForCLC/clcmain.jsp?lang=chi&tag=8",
+      "edition": "第4版",
+      "sha256": "9a22b847b60ba7eba4aca38c523e5e10a1f8837eb67781493fbceda28a87f34a",
+      "attribution": "深圳大学图书馆 NKOS 研究室；中国图书馆分类法",
+      "license": "网站声明保留权利；数据权利不由本项目软件许可覆盖"
+    },
+    "wiki-general": {
+      "title": "维基百科：中国图书馆分类法 (通用复分表)",
+      "url": "https://web.archive.org/web/20190629202539/https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%9B%BE%E4%B9%A6%E9%A6%86%E5%88%86%E7%B1%BB%E6%B3%95_(%E9%80%9A%E7%94%A8%E5%A4%8D%E5%88%86%E8%A1%A8)",
+      "sha256": "923542e80fbbefb85e177563989f23b77ccfb29f46624b6590aebb9b880a1412",
+      "attribution": "中文维基百科贡献者",
+      "license": "CC BY-SA 3.0（快照页脚）；附加条款可能适用"
+    },
+    "clc-v5-auxiliary": {
+      "title": "中国图书馆分类法（第5版），通用复分表",
+      "attribution": "国家图书馆《中国图书馆分类法》编辑委员会；国家图书馆出版社，2010",
+      "url": "https://tsg.wtc.edu.cn/_upload/article/files/fd/74/76b7c82e4eb7a591a1112f168df1/9a512fd6-9c4c-42dc-b227-2d31a2ab49b7.pdf",
+      "archive_url": "https://web.archive.org/web/20250621112256/https://tsg.wtc.edu.cn/_upload/article/files/fd/74/76b7c82e4eb7a591a1112f168df1/9a512fd6-9c4c-42dc-b227-2d31a2ab49b7.pdf",
+      "sha256": "9d7a8dae393d481b771b646599d432137d764721378b24b6f4c3c640933c766c",
+      "pdf_pages": [
+        1012,
+        1035
+      ],
+      "printed_pages": [
+        991,
+        1014
+      ],
+      "rights": "原书及分类数据权利归原权利人；仅作为本地分类参考，独立于软件许可；不分发原书PDF。",
+      "method": "提取编号与类名，以深圳大学图书馆第4版附表交叉核对；对新增、移号、停用及OCR遗漏/疑误核对第5版页图。保留版次及逐项页码。",
+      "reviewed_data_sha256": "a7f191edaa9c0531799da9f90765d6e3ca8d7c630fdc4197f22d6f5e8482eb3d"
+    },
+    "clc-v5-training": {
+      "title": "《中图法》标记符号系统和复分表的修订和使用",
+      "attribution": "西安交通大学图书馆 雒虹，2011年5月",
+      "url": "https://lib.xdxd.cn/uploads/ftp1213/zhongtu5.9.pdf",
+      "use": "复分连接符、顺序和适用范围；总论复分例外；主表已有专类优先。",
+      "rights": "原资料权利归原权利人；仅作规则核对，不随程序分发原PDF。"
+    }
+  },
+  "merge_policy": "原有条目和父子关系优先；新增项取最长有效上级；排除标记/停用分支、范围和冲突，不覆盖用户词典。",
+  "limitations": [
+    "附表依据第5版原书，编号和名称保留原版历史范围，不作为现行政区或族群学标准。",
+    "O4、TF、TN、TS 的多个日期/地址未找到可读快照；相应原有字典完整保留，不声称已从快照补齐。"
+  ]
+}

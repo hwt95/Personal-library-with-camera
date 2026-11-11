@@ -368,8 +368,11 @@ class MainWindow(QMainWindow):
         if not code:
             label = tr('待分类 · 保存后生成临时编号')
         else:
-            match = next((r for r in self.db.classifications(code, system=self.entry.active_system) if r["code"] == code), None) if self.db else None
-            label = match["name"] if match else tr('名称未收录 · 此分类号仍可保存')
+            if self.db:
+                label = self.db.classification_description(code, self.entry.active_system)
+            else:
+                from .classification_dictionary import bundled_clc, term_description
+                label = term_description(bundled_clc() if self.entry.active_system == 'clc' else {}, code, self.entry.active_system)
         self.entry.clc_hint.setText(label)
 
     def choose_classification(self):

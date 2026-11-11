@@ -77,11 +77,12 @@ def test_same_isbn_new_editions_allowed(db):
 
 
 def test_backup_reset_restore_cover_and_classification(db, tmp_path):
+    classifications_before = db.classifications()
     db.save(book(cover_blob=b"original-cover", cover_mime="image/jpeg"), 2020)
     db.save(book(cover_blob=b"original-cover", cover_mime="image/jpeg"), 2022, book_id=1)
     backup = db.reset_with_backup()
     assert db.stats() == (0, 0)
-    assert len(db.classifications()) == 22
+    assert db.classifications() == classifications_before
     restored = LibraryDB(backup)
     assert restored.book(1)["cover_blob"] == b"original-cover"
     assert restored.stats() == (1, 2)

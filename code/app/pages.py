@@ -1,4 +1,5 @@
 import json
+import html
 import sys
 from pathlib import Path
 
@@ -96,6 +97,8 @@ class EntryPage(QWidget):
                 widget.setPlaceholderText(tr('例如 TP303；留空表示待分类'))
                 form.addRow(label, row(widget, button(tr('分类字典'), owner.choose_classification)))
                 self.clc_hint = QLabel(tr('待分类 · 保存后生成临时编号'))
+                self.clc_hint.setTextFormat(Qt.TextFormat.PlainText)
+                self.clc_hint.setWordWrap(True)
                 self.clc_hint.setObjectName("subtle")
                 form.addRow("", self.clc_hint)
                 widget.textChanged.connect(owner.update_classification_hint)
@@ -448,6 +451,7 @@ class CatalogPage(QWidget):
             return
         self.table.blockSignals(True)
         self.table.setRowCount(len(self.rows))
+        classification_tips = {}
         for i, item in enumerate(self.rows):
             for j, (key, _) in enumerate(self.COLUMNS):
                 value = str(item[key])
@@ -467,6 +471,13 @@ class CatalogPage(QWidget):
                     value += tr(' · 临时')
                 cell = QTableWidgetItem(value)
                 cell.setToolTip(str(item[key]) if key == "summary" else value)
+                if key in ('code', 'classification_code') and item['media_type'] == 'book':
+                    tip_key = (item['classification_system'], item['classification_code'])
+                    if tip_key not in classification_tips:
+                        classification_tips[tip_key] = (self.owner.db.classification_description(tip_key[1], tip_key[0])
+                            if tip_key[1] else tr('待分类 · 保存后生成临时编号'))
+                    text = value + '\n' + tip_key[0].upper() + ' ' + tip_key[1] + '\n' + classification_tips[tip_key]
+                    cell.setToolTip('<qt>' + html.escape(text).replace('\n', '<br>') + '</qt>')
                 self.table.setItem(i, j, cell)
         self.table.blockSignals(False)
         self.count.setText(tr('找到 {v0} 册 / {v1} 种书目', v0=(len(self.rows)), v1=(len({r['book_id'] for r in self.rows}))))
@@ -634,7 +645,7 @@ class SettingsPage(QWidget):
         db_layout.addWidget(row(button(tr('打开现有库'), owner.open_database), button(tr('新建数据库'), owner.new_database),
                                  button(tr('另存副本并切换'), lambda: owner.backup_database(switch=True)),
                                  button(tr('完整备份'), owner.backup_database)))
-        db_layout.addWidget(QLabel(tr('书目、封面和分类字典均保存在同一个 SQLite 文件中。请将数据库放在便于备份的位置。')))
+        db_layout.addWidget(QLabel(tr('书目、封面和自定义分类字典保存在数据库中；内置字典随程序提供。请将数据库放在便于备份的位置。')))
         db_layout.addWidget(row(button(tr('导入分类 CSV'), owner.import_classifications), button(tr('重置当前数据库…'), owner.reset_database)))
         layout.addWidget(database)
         sources = QGroupBox(tr('书目来源与摄像头'))

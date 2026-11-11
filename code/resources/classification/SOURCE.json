@@ -1,0 +1,42 @@
+{
+  "name": "用户提供的中图法分类字典",
+  "revision": "2026-11-07",
+  "original_file": "clc.json",
+  "original_sha256": "ee2b336ff0e1b3f1eb254083f6d67e97bcdceabb72634104a3485cf44e945feb",
+  "payload_sha256": "c75a01be404a0aaf006f183f988d524cfc869115e5ba2b194f1110e033d8bd90",
+  "entries": 45785,
+  "rights": "用户说明仅限非商业使用；未随文件提供原作者、项目链接或具体许可文本。数据权利独立于软件许可。",
+  "reference": "中国图书馆分类法（第5版）.pdf，仅用于少量抽查，不随程序分发。",
+  "corrections": [
+    {
+      "original": "U653.923.+1",
+      "corrected": "U653.923+.1",
+      "pdf_page": 966,
+      "printed_page": 946
+    },
+    {
+      "original": "U653.923.+2",
+      "corrected": "U653.923+.2",
+      "pdf_page": 966,
+      "printed_page": 946
+    },
+    {
+      "original": "U653.923.+3",
+      "corrected": "U653.923+.3",
+      "pdf_page": 966,
+      "printed_page": 946
+    },
+    {
+      "original": "U653.923.+4",
+      "corrected": "U653.923+.4",
+      "pdf_page": 966,
+      "printed_page": 946
+    },
+    {
+      "original": "U653.923.+5",
+      "corrected": "U653.923+.5",
+      "pdf_page": 966,
+      "printed_page": 946
+    }
+  ]
+}

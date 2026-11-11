@@ -96,6 +96,14 @@ def run(application, report_path):
             assert restored.stats() == (1, 2)
             restored.close()
             report["checks"]["database_cover_backup"] = True
+            from .classification_dictionary import bundled_clc
+            assert len(bundled_clc()) > 45785
+            assert bundled_clc()['I247.57']['name'] == '社会、言情小说'
+            from .classification_dictionary import find_term
+            assert find_term(bundled_clc(), 'I712.45')[1] == 'composed'
+            assert find_term(bundled_clc(), 'TP24(313)')[1] == 'composed'
+            assert bundled_clc()['U653.923+.5']['name'] == '平板车'
+            report['checks']['bundled_clc_dictionary'] = True
             classification_db = LibraryDB(root / 'classification.sqlite3', create=True, language='en')
             try:
                 assert classification_db.save({'title': 'DDC test', 'ddc_code': '005.133', 'lcc_code': 'QA76.73.P98'}, 2026)[1] == 'DDC-005.133-001'
@@ -111,6 +119,14 @@ def run(application, report_path):
             assert window.set_location_presets(["书房 A 架", "客厅书柜上层"])
             assert json.loads((root / "settings.json").read_text(encoding="utf-8"))["location_presets"] == ["书房 A 架", "客厅书柜上层"]
             assert __version__ in window.windowTitle() and __author__ in window.settings_page.about.text()
+            window.entry.fields['clc_code'].setText('TP303')
+            if window.entry.active_system == 'clc':
+                assert '总体结构、系统结构' in window.entry.clc_hint.text()
+            window.entry.set_text('clc_code', '')
+            window.update_classification_hint()
+            window.catalog.refresh()
+            assert '总体结构、系统结构' in window.catalog.table.item(0, 0).toolTip()
+            report['checks']['classification_meanings_in_ui'] = True
             report["checks"]["version_and_author"] = True
             assert "LGPLv3" in window.settings_page.license_notice.text()
             report["checks"]["visible_lgpl_notice"] = True

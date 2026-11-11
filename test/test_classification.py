@@ -9,6 +9,7 @@ import pytest
 from PySide6.QtWidgets import QDialog, QMessageBox, QLabel, QAbstractButton, QGroupBox, QWidget
 
 from app.classification import resolve_system, metadata_codes, normalize_code
+from app.classification_dictionary import bundled_clc
 from app.database import LibraryDB, SCHEMA_VERSION
 from app.dialogs import ClassificationPolicyDialog
 from app.i18n import LANGUAGES, set_language, catalogs
@@ -152,7 +153,7 @@ def test_dictionary_import_and_exports_are_system_specific(db, tmp_path):
     dictionary.write_text('code,name,parent_code,source,edition\n005.133,My local term,,,User\n', 'utf-8')
     db.import_classifications(dictionary, system='ddc')
     assert db.classifications(system='ddc')[0]['code'] == '005.133'
-    assert db.classifications(system='lcc') == [] and len(db.classifications()) == 22
+    assert db.classifications(system='lcc') == [] and len(db.classifications()) == len(bundled_clc())
     populate(db)
     db.set_classification_policy('ddc', 'en', synchronize=True)
     output = tmp_path / 'books.csv'

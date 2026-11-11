@@ -372,5 +372,17 @@
   "编号变更记录已导出：{path}": "Historique des numéros exporté : {path}",
   "数据库已升级至 1.2；升级前备份：{path}": "Base mise à niveau pour 1.2 ; sauvegarde préalable : {path}",
   "字典按体系独立保存；可在设置中导入有权使用的 CSV，或直接填写分类号。未内置完整 DDC / LCC 类目表。": "Chaque système a son dictionnaire. Importez un CSV autorisé dans les paramètres ou saisissez un indice. Les tables DDC / LCC complètes ne sont pas incluses.",
-  "无需安装 Python、Qt、OpenCV 或模型运行环境；保持 exe 与 _internal 文件夹在一起。\n离线可录入、编辑、检索、拍摄封面。联网仅用于您发起的书目查询和封面下载。\n分类号采用来源明确提供的所选体系编号；缺失时可手填或暂存为待分类。\n录入页：ISBN 回车查询；资料就绪后回车保存；Ctrl+Enter 保存；Esc 重置。\n简介中的回车保留换行；输入框中的 Backspace 正常删除字符。": "Les composants et polices sont intégrés. Gardez l’exécutable avec _internal.\nSaisie, édition, recherche et photos hors ligne. Requêtes réseau à votre demande.\nLes indices proviennent des codes explicites du système choisi ; saisissez un indice manquant ou laissez le titre à classer.\nEntrée : rechercher ou enregistrer. Ctrl+Entrée : enregistrer. Échap : effacer le brouillon.\nEntrée dans le résumé crée une ligne."
+  "无需安装 Python、Qt、OpenCV 或模型运行环境；保持 exe 与 _internal 文件夹在一起。\n离线可录入、编辑、检索、拍摄封面。联网仅用于您发起的书目查询和封面下载。\n分类号采用来源明确提供的所选体系编号；缺失时可手填或暂存为待分类。\n录入页：ISBN 回车查询；资料就绪后回车保存；Ctrl+Enter 保存；Esc 重置。\n简介中的回车保留换行；输入框中的 Backspace 正常删除字符。": "Les composants et polices sont intégrés. Gardez l’exécutable avec _internal.\nSaisie, édition, recherche et photos hors ligne. Requêtes réseau à votre demande.\nLes indices proviennent des codes explicites du système choisi ; saisissez un indice manquant ou laissez le titre à classer.\nEntrée : rechercher ou enregistrer. Ctrl+Entrée : enregistrer. Échap : effacer le brouillon.\nEntrée dans le résumé crée une ligne.",
+  "未精确收录 {code}；上级参考：{parent} {name}": "Aucune entrée exacte pour {code} ; classe parente : {parent} {name}",
+  "字典标记条目：{code} {name}；请核对适用性": "Entrée marquée : {code} {name} ; vérifier son applicabilité",
+  "原文件编码有误；参考更正：{code} {name}": "Erreur dans le code source ; référence corrigée : {code} {name}",
+  "匹配 {count} 项；最多显示 300 项，请输入更具体的编码或名称。": "{count} résultats ; 300 affichés au maximum. Précisez le code ou le nom.",
+  "共 {count} 项；展开类目查看下级，或输入编码、名称搜索。": "{count} entrées. Développez une classe ou recherchez un code ou un nom.",
+  "书目、封面和自定义分类字典保存在数据库中；内置字典随程序提供。请将数据库放在便于备份的位置。": "Les livres, couvertures et termes personnalisés sont dans la base ; le dictionnaire intégré est fourni avec l’application. Choisissez un emplacement facile à sauvegarder.",
+  "主分类表": "Table principale",
+  "第5版原书第 {page} 页；复分号须与主分类号组合使用。": "5e édition, page imprimée {page} ; associez cet indice à une classe principale.",
+  "附表供组合查阅，不能单独作为主分类号。": "Les indices auxiliaires doivent être associés à une classe principale.",
+  "已停用的分类号：{code} {name}；请核对新版类目": "Classe supprimée : {code} {name} ; vérifiez la classification révisée",
+  "复分组合（第5版）：{name}": "Classification composée (5e édition) : {name}",
+  "按复分规则解析；主表已有专类时应采用专类。": "Interprétation selon les règles de subdivision ; une classe dédiée de la table principale est prioritaire."
 }

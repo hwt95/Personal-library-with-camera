@@ -110,6 +110,14 @@ def main():
         raise SystemExit("Windows 便携包请在 Windows x64 上构建")
     from scripts.package_compliance import verified_sources, install_compliance
     sources = verified_sources()
+    clc_folder = RESOURCES / 'classification'
+    clc_manifest = json.loads((clc_folder / 'SOURCE.json').read_text(encoding='utf-8'))
+    if hashlib.sha256((clc_folder / 'clc.json.gz').read_bytes()).hexdigest() != clc_manifest['payload_sha256']:
+        raise RuntimeError('Bundled CLC dictionary checksum mismatch')
+    supplement_manifest = json.loads((clc_folder / 'SUPPLEMENT_SOURCE.json').read_text(encoding='utf-8'))
+    if (hashlib.sha256((clc_folder / 'supplement.json.gz').read_bytes()).hexdigest() != supplement_manifest['payload_sha256']
+            or supplement_manifest['base_sha256'] != clc_manifest['payload_sha256']):
+        raise RuntimeError('Bundled CLC supplement checksum or base dictionary mismatch')
     model_folder = ROOT / "deps" / "models" / "book_boundary"
     for asset in json.loads((model_folder / "SOURCE.json").read_text(encoding="utf-8"))["assets"]:
         if hashlib.sha256((model_folder / asset["file"]).read_bytes()).hexdigest() != asset["sha256"]:
@@ -180,7 +188,7 @@ def main():
     shutil.copytree(RESOURCES / "licenses", licenses / "Qt", dirs_exist_ok=True)
     inventory = []
     # Carry upstream notices/license texts, including bundled third-party notices.
-    for name in ("PySide6-Essentials", "shiboken6", "opencv-python-headless", "zxing-cpp", "httpx", "httpcore", "h11", "anyio", "certifi", "idna", "beautifulsoup4", "soupsieve", "typing-extensions", "numpy", "onnxruntime", "flatbuffers", "packaging", "protobuf", "PyInstaller"):
+    for name in ("PySide6-Essentials", "shiboken6", "opencv-python-headless", "zxing-cpp", "httpx", "httpcore", "h11", "anyio", "certifi", "idna", "beautifulsoup4", "soupsieve", "typing-extensions", "numpy", "onnxruntime", "flatbuffers", "packaging", "protobuf", "PyInstaller", "Pygments", "pytest"):
         dist = metadata.distribution(name)
         paths = []
         for item in dist.files or []:
@@ -225,8 +233,7 @@ def main():
         "PP-LCNet_x1_0_doc_ori: PaddlePaddle model, Apache-2.0; exact revision and checksums in licenses/document_orientation/SOURCE.json.\n"
         "DocAligner 1.1.1 T8 / LCNet: Apache-2.0; model sources and checksums in licenses/book_boundary/SOURCE.json.\n"
         "NLC parsing is independently implemented against catalog HTML; no calibre plugin code is included.\n", encoding="utf-8")
-    compliance = install_compliance(PACKAGE, sources)
-    (WORK / "compliance-build.json").write_text(json.dumps(compliance, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    install_compliance(PACKAGE, sources)
     # Keep the source directions beside the downloadable binary as well as in its UI.
     shutil.copy2(PACKAGE / "SOURCE_CODE.md", DIST / "SOURCE_DOWNLOADS.md")
     # Packaging uses only the staging tree; an existing library or API key cannot leak into the ZIP.

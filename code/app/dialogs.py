@@ -13,6 +13,8 @@ from .imaging import encode_cover
 from .workers import CoverWorker, BorderWorker
 from .chrome import AppDialog
 from .classification import system_label
+from .classification_auxiliary import supplement, auxiliary_index
+from .classification_dictionary import find_term, term_description
 
 
 class CornerLoupe(QWidget):
@@ -178,6 +180,12 @@ class ClassificationDialog(AppDialog):
         self.setWindowTitle(system_label(system) + ' · ' + tr('分类字典'))
         self.resize(650, 580)
         layout = QVBoxLayout(self)
+        self.table_selector = QComboBox()
+        self.table_selector.addItem(tr('主分类表'), '')
+        if system == 'clc':
+            for key, table in supplement()['tables'].items():
+                self.table_selector.addItem(table['name'] + ' · ' + table['edition'], key)
+            layout.addWidget(self.table_selector)
         self.query = QLineEdit()
         self.query.setPlaceholderText(tr('搜索分类号或名称；字典未收录的细分类可直接在录入页输入'))
         layout.addWidget(self.query)
@@ -186,29 +194,89 @@ class ClassificationDialog(AppDialog):
         layout.addWidget(note)
         self.tree = QTreeWidget()
         self.tree.setHeaderLabels([tr('分类号'), tr('名称')])
+        # A one-time fit only measures the collapsed root codes. Keep fitting as
+        # lazy children become visible, including their indentation and full code.
+        self.tree.header().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+        self.tree.header().setResizeContentsPrecision(-1)
         layout.addWidget(self.tree)
-        layout.addWidget(button(tr('采用所选分类'), self.choose, primary=True))
-        self.query.textChanged.connect(self.populate)
+        self.result_note = QLabel()
+        self.result_note.setWordWrap(True)
+        layout.addWidget(self.result_note)
+        self.choose_button = button(tr('采用所选分类'), self.choose, primary=True)
+        layout.addWidget(self.choose_button)
+        self.main_index = db.classification_index(system)
+        self.index = self.main_index
+        self.children_by_parent = {}
+        for item in self.index.values():
+            parent = item['parent_code'] if item['parent_code'] in self.index else ''
+            self.children_by_parent.setdefault(parent, []).append(item)
+        self.order_main_children()
+        self.search_timer = QTimer(self)
+        self.search_timer.setSingleShot(True)
+        self.search_timer.setInterval(180)
+        self.search_timer.timeout.connect(self.populate)
+        self.query.textChanged.connect(lambda: self.search_timer.start())
+        self.tree.itemExpanded.connect(self.expand_node)
         self.tree.itemDoubleClicked.connect(self.choose)
+        self.table_selector.currentIndexChanged.connect(self.change_table)
         self.populate()
+
+    def change_table(self):
+        key = self.table_selector.currentData()
+        self.index = auxiliary_index(key) if key else self.main_index
+        self.choose_button.setEnabled(not key)
+        self.children_by_parent = {}
+        for record in self.index.values():
+            parent = record['parent_code'] if record['parent_code'] in self.index else ''
+            self.children_by_parent.setdefault(parent, []).append(record)
+        self.order_main_children()
+        self.populate()
+
+    def order_main_children(self):
+        if self.system == 'clc' and not self.table_selector.currentData():
+            for children in self.children_by_parent.values():
+                children.sort(key=lambda record: record['code'].strip('[]{}'))
+
+    def make_node(self, record, *, expandable):
+        item = QTreeWidgetItem([record['code'], record['name']])
+        item.setData(0, Qt.ItemDataRole.UserRole, record['code'])
+        item.setToolTip(0, record['code'])
+        if self.table_selector.currentData():
+            item.setToolTip(1, record['name'] + '\n' + tr('第5版原书第 {page} 页；复分号须与主分类号组合使用。', page=record['printed_page']))
+        else:
+            item.setToolTip(1, term_description(self.main_index, record['code'], self.system))
+        if expandable and self.children_by_parent.get(record['code']):
+            item.setChildIndicatorPolicy(QTreeWidgetItem.ChildIndicatorPolicy.ShowIndicator)
+        return item
+
+    def expand_node(self, item):
+        if self.query.text().strip() or item.childCount():
+            return
+        for record in self.children_by_parent.get(item.data(0, Qt.ItemDataRole.UserRole), []):
+            item.addChild(self.make_node(record, expandable=True))
 
     def populate(self):
         self.tree.clear()
-        records = self.db.classifications(self.query.text().strip(), system=self.system)
-        nodes = {r["code"]: QTreeWidgetItem([r["code"], r["name"]]) for r in records}
-        for record in records:
-            item = nodes[record["code"]]
-            parent = nodes.get(record["parent_code"])
-            if parent is not None:
-                parent.addChild(item)
-            else:
-                self.tree.addTopLevelItem(item)
-        if self.query.text():
-            self.tree.expandAll()
+        query = self.query.text().strip().casefold()
+        if query:
+            matches = [r for r in self.index.values() if query in r['code'].casefold() or query in r['name'].casefold()]
+            if self.system == 'clc' and not self.table_selector.currentData():
+                term, kind = find_term(self.main_index, self.query.text(), 'clc')
+                if kind == 'composed':
+                    matches.insert(0, term)
+            self.result_note.setText(tr('匹配 {count} 项；最多显示 300 项，请输入更具体的编码或名称。', count=len(matches)))
+            for record in matches[:300]:
+                self.tree.addTopLevelItem(self.make_node(record, expandable=False))
+        else:
+            self.result_note.setText(tr('共 {count} 项；展开类目查看下级，或输入编码、名称搜索。', count=len(self.index)))
+            for record in self.children_by_parent.get('', []):
+                self.tree.addTopLevelItem(self.make_node(record, expandable=True))
+        if self.table_selector.currentData():
+            self.result_note.setText(self.result_note.text() + '\n' + tr('附表供组合查阅，不能单独作为主分类号。'))
         self.tree.resizeColumnToContents(0)
 
     def choose(self, *_):
-        if self.tree.currentItem():
+        if self.tree.currentItem() and not self.table_selector.currentData():
             self.selected_code = self.tree.currentItem().text(0)
             self.accept()
 

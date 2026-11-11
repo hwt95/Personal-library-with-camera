@@ -7,8 +7,8 @@
 <p align="center"><strong>A place for every book. Your reading at a glance.<br>让每本书有处可寻，让阅读状态一目了然。</strong></p>
 
 <p align="center">
-  Windows 10 / 11 · x64 · v1.2<br>
-  <a href="https://github.com/hwt95/Personal-library-with-camera/releases/tag/v1.2"><strong>Download / 下载</strong></a> ·
+  Windows 10 / 11 · x64 · v1.3<br>
+  <a href="https://github.com/hwt95/Personal-library-with-camera/releases/tag/v1.3"><strong>Download / 下载</strong></a> ·
   <a href="#english">English</a> · <a href="#简体中文">简体中文</a> ·
   <a href="LICENSE">PolyForm Noncommercial 1.0.0</a>
 </p>
@@ -69,6 +69,8 @@ If you decide to reorganise, choose whether the new rule applies only to future 
 
 Open Library can supply explicit DDC and LCC numbers. When the number you need is missing, the book waits for classification until you fill it in. The application does not guess a conversion between systems or include complete DDC/LCC schedules.
 
+Version 1.3 includes 48,104 CLC entries and eight fifth-edition auxiliary tables with 1,211 records, including historical and marked entries. The classification browser shows deep subclasses and lets you browse the auxiliary tables. Complete supported compound numbers such as `I712.45` and `TP24(313)` receive offline explanations, clearly distinguished from printed main-table entries. Custom dictionaries take priority, and existing book numbers stay unchanged. Older snapshots recover missing material; O4, TF, TN and TS retain their existing entries because readable snapshots remain unavailable. This is an additive supplement, not a complete revision of every CLC schedule. See [data sources](DATA_SOURCES.md) for editions and attribution.
+
 ### A cover that looks like your book
 
 Use the live camera or an existing photo. The application finds the cover edges, straightens the perspective and suggests an upright orientation, all on your computer. Drag a corner, open the magnified editor or rotate the image when it needs a small adjustment. Your cover photos stay on your device.
@@ -77,9 +79,11 @@ Use the live camera or an existing photo. The application finds the cover edges,
 
 Your catalogue, copies and saved covers live in a SQLite file that you choose. The application offers full backups and CSV exports, and the portable package includes its runtime, fonts and local models. The interface is available in English, Simplified Chinese, French, Spanish, Russian and Arabic.
 
-1. Download **PersonalLibrary-v1.2-Windows-x64.zip** from [Releases](https://github.com/hwt95/Personal-library-with-camera/releases/tag/v1.2).
+1. Download **PersonalLibrary-v1.3-Windows-x64.zip** from [Releases](https://github.com/hwt95/Personal-library-with-camera/releases/tag/v1.3).
 2. Extract the whole folder and open **PersonalLibrary.exe**. Keep the `_internal` folder beside it.
 3. Create a library or open your existing one. Choose a folder you can write to and back up easily.
+
+**Upgrading from 1.2?** Version 1.3 uses the same database format and preserves your existing library and numbering.
 
 **Upgrading from 1.1?** Version 1.2 makes a backup before opening the library in its new database format. Your existing call numbers stay as they are; reorganising existing books is a separate choice in settings. Once upgraded, the library needs version 1.2. To return to an older application, open a copy of the backup made before the upgrade. Libraries from 1.0 are also supported and retain their numbering-change record.
 
@@ -89,7 +93,7 @@ The original application is available under the unmodified [PolyForm Noncommerci
 
 Third-party software, fonts, models and data keep their own terms. See [licence scope](LICENSING.md), [data sources](DATA_SOURCES.md), and [corresponding third-party source downloads](docs/SOURCE_DOWNLOADS.md). Those source downloads are for people who want to study or change the libraries; they are not needed to run the application.
 
-[What's new in 1.2](CHANGELOG.md) · [Build from source](docs/BUILD.md) · [Report an issue](https://github.com/hwt95/Personal-library-with-camera/issues)
+[What's new in 1.3](CHANGELOG.md) · [Build from source](docs/BUILD.md) · [Report an issue](https://github.com/hwt95/Personal-library-with-camera/issues)
 
 ## 简体中文
 
@@ -113,6 +117,8 @@ Third-party software, fonts, models and data keep their own terms. See [licence 
 
 Open Library 明确提供的 DDC、LCC 分类号可以直接使用。缺少需要的分类号时，就先放进待分类，等你有空补上。程序不猜测不同体系之间的对应关系，也没有内置完整的 DDC、LCC 类目表。
 
+1.3 内置 48,104 项中图法主表条目，以及第 5 版八张复分表、共 1,211 项记录（含历史及标记条目）。分类窗口可以展开深层子类，也可切换查阅附表。输入 `I712.45`、`TP24(313)` 等已支持的完整组合号，可离线查看含义，并明确区分复分组合与主表精确条目。自定义词典优先，已有馆藏编号保持原样。较早快照已用于补回遗漏；O4、TF、TN、TS 尚缺可读快照，继续保留原有分支，本次不代表全部类表已经重新校订。版次和署名见[数据来源](DATA_SOURCES.md)。
+
 ### 给封面留一个舒服的样子
 
 可以实时拍摄，也可以导入已有照片。本地模型帮你找四角、裁正透视、调整朝向；遇到反光或边缘不清楚的封面，再拖动顶点，用放大镜和方向键慢慢修整。你拍下的照片始终在本机处理。
@@ -121,9 +127,11 @@ Open Library 明确提供的 DDC、LCC 分类号可以直接使用。缺少需�
 
 书目、实体副本和封面保存在你选择的 SQLite 文件里，随时可以完整备份或导出 CSV。便携包带齐运行库、字体和模型，解压就能用。界面支持简体中文、英语、法语、西班牙语、俄语和阿拉伯语，可在设置中切换。
 
-1. 在 [Releases](https://github.com/hwt95/Personal-library-with-camera/releases/tag/v1.2) 下载 **PersonalLibrary-v1.2-Windows-x64.zip**。
+1. 在 [Releases](https://github.com/hwt95/Personal-library-with-camera/releases/tag/v1.3) 下载 **PersonalLibrary-v1.3-Windows-x64.zip**。
 2. 完整解压后打开 **PersonalLibrary.exe**，保留旁边的 `_internal` 文件夹。
 3. 新建书库或打开已有书库，选一个方便保存和备份的位置。
+
+**从 1.2 升级时，**1.3 沿用相同数据库格式，原有书库和编号保持不变。
 
 **从 1.1 升级时，**程序会先备份，再更新书库结构，已有馆藏编号保留原样；是否同步已有书目，需要在设置中另行选择。升级后的书库需要使用 1.2，旧版无法打开新结构。如果要回到旧版，请打开升级前备份的副本。1.0 书库也可以升级，并保留编号变更记录。
 
@@ -133,6 +141,6 @@ Open Library 明确提供的 DDC、LCC 分类号可以直接使用。缺少需�
 
 第三方软件、字体、模型和数据各自保留原有条款。具体见[许可范围](LICENSING.md)、[数据源说明](DATA_SOURCES.md)和[第三方对应源码下载](docs/SOURCE_DOWNLOADS.md)。源码下载供需要研究或修改组件的人使用，日常运行不需要另外下载。
 
-[1.2 更新内容](CHANGELOG.md) · [详细使用说明](code/USER_GUIDE.md) · [从源码构建](docs/BUILD.md) · [问题反馈](https://github.com/hwt95/Personal-library-with-camera/issues)
+[1.3 更新内容](CHANGELOG.md) · [详细使用说明](code/USER_GUIDE.md) · [从源码构建](docs/BUILD.md) · [问题反馈](https://github.com/hwt95/Personal-library-with-camera/issues)
 
 <p align="center">Gimi.H with Chatgpt model</p>
